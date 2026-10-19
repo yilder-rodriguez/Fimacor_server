@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes"/>
+    <title>FIMACOR | Manuales de Máquinas Textiles</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous"/>
+    <link rel="stylesheet" th:href="@{/Estyle.css/fimacor-theme.css}"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+" crossorigin="anonymous"/>
+</head>
+<body class="manuales-form bg-body-tertiary">
+
+    <div class="row g-0 min-vh-100">
+    <th:block th:replace="~{fragments/nav :: sidebar}"></th:block>
+    <div class="col-12 col-lg-9 col-xxl-10 d-flex flex-column">
+        <th:block th:replace="~{fragments/nav :: topbar('Manuales de Máquinas Textiles')}"></th:block>
+        <main class="flex-grow-1 px-3 px-md-4 px-xxl-5 py-4">
+
+    <div class="manuales-wrapper">
+        <div class="manuales-container bg-white border rounded-4 shadow-sm p-3 p-md-5 mx-auto col-xl-10">
+
+            <div class="manuales-header border-bottom pb-3 mb-4">
+                <h2 class="h2manuales h3 fw-bold mb-1" th:text="${puedeSubir} ? 'Subida de Manuales Técnicos' : 'Manuales Técnicos'">Manuales</h2>
+                <p class="manuales-subtitle small text-secondary mb-0">Consulta de documentos técnicos de máquinas textiles</p>
+            </div>
+
+            <form th:if="${puedeSubir}" th:action="@{/manuales}" method="post" enctype="multipart/form-data" class="formmanuales row row-cols-1 row-cols-md-2 g-3">
+
+                <div class="alertamanuales-error alert alert-danger py-2" th:if="${param.error == 'archivo'}">Seleccione un PDF para subir el manual.</div>
+                <div class="alertamanuales-error alert alert-danger py-2" th:if="${param.error == 'pdf'}">El archivo del manual debe ser PDF.</div>
+                <div class="alertamanuales-error alert alert-danger py-2" th:if="${param.error == 'link'}">Ingrese un link válido para guardar el manual.</div>
+                <div class="alertamanuales-error alert alert-danger py-2" th:if="${param.error == 'archivo_grande'}">El archivo es demasiado grande (máximo 20 MB). Comprime el PDF e inténtalo de nuevo.</div>
+                <div class="alertamanuales-error alert alert-danger py-2" th:if="${param.error != null and param.error != 'archivo' and param.error != 'pdf' and param.error != 'link' and param.error != 'archivo_grande'}">No se pudo guardar el manual. Revise los datos e intente nuevamente.</div>
+                <div class="alertamanuales-exito alert alert-success py-2" th:if="${param.ok}">Manual guardado correctamente.</div>
+
+                <div class="inputmanuales-group d-flex flex-column">
+                    <label class="form-label fw-semibold small text-success mb-1" for="maquina">Máquina asociada</label>
+                    <select class="form-select" id="maquina" name="maquina" required data-buscable data-buscable-texto="Buscar máquina por código o nombre">
+                        <option value="">Seleccione una máquina</option>
+                        <option th:each="maquina : ${maquinas}" th:value="${maquina.idMaquinas}"
+                                th:text="${maquina.codigoSena} + ' - ' + ${maquina.descripcion}"></option>
+                    </select>
+                </div>
+
+                <div class="inputmanuales-group d-flex flex-column">
+                    <label class="form-label fw-semibold small text-success mb-1" for="tipo_manual">Tipo de manual</label>
+                    <select class="form-select" id="tipo_manual" name="tipo_manual" required>
+                        <option value="">Seleccione una opción</option>
+                        <option th:each="tipo : ${tiposManual}" th:value="${tipo.idTiposManuales}" th:text="${tipo.descripcionManual}"></option>
+                    </select>
+                </div>
+
+                <div class="inputmanuales-group d-flex flex-column w-100">
+                    <label class="form-label fw-semibold small text-success mb-1" for="descripcion">Descripción del manual</label>
+                    <textarea id="descripcion" name="descripcion" class="textareamanuales form-control" maxlength="45"
+                              placeholder="Ingrese una descripción del manual técnico"></textarea>
+                </div>
+
+                <div class="inputmanuales-group d-flex flex-column">
+                    <label class="form-label fw-semibold small text-success mb-1">Fuente del manual</label>
+                    <div class="manuales-source-options d-flex gap-4 border rounded-3 bg-success-subtle px-3 py-2">
+                        <label class="form-check-label d-flex align-items-center gap-2 fw-semibold small text-success"><input class="form-check-input mt-0" type="radio" name="fuenteManual" value="archivo" checked/> Subir PDF</label>
+                        <label class="form-check-label d-flex align-items-center gap-2 fw-semibold small text-success"><input class="form-check-input mt-0" type="radio" name="fuenteManual" value="link"/> Guardar link</label>
+                    </div>
+                </div>
+
+                <div class="inputmanuales-group d-flex flex-column" id="manualPdfGroup">
+                    <label class="form-label fw-semibold small text-success mb-1" for="archivo">PDF del manual</label>
+                    <div class="manuales-file-selector d-flex gap-2 align-items-center">
+                        <input type="file" id="archivo" name="archivo" class="inputmanuales-file form-control" accept="application/pdf,.pdf"/>
+                        <button type="button" id="quitarArchivoManual" class="btn-quitar-manual btn btn-outline-danger btn-sm text-nowrap" disabled>Quitar PDF</button>
+                    </div>
+                    <small class="manuales-file-help form-text">Puedes quitar el PDF seleccionado y adjuntar otro antes de guardar.</small>
+                </div>
+
+                <div class="inputmanuales-group d-flex flex-column d-none" id="manualLinkGroup">
+                    <label class="form-label fw-semibold small text-success mb-1" for="linkManual">Link del manual</label>
+                    <input class="form-control" type="url" id="linkManual" name="linkManual" placeholder="https://ejemplo.com/manual.pdf"/>
+                </div>
+
+                <div class="inputmanuales-group d-flex flex-column">
+                    <label class="form-label fw-semibold small text-success mb-1" for="fecha_subida">Fecha de subida</label>
+                    <input class="form-control" type="date" id="fecha_subida" name="fecha_subida" required/>
+                </div>
+
+                <div class="manuales-buttons d-flex flex-wrap gap-2 mt-3">
+                    <button type="submit" class="btnmanuales btn btn-success fw-bold">Subir manual</button>
+                </div>
+            </form>
+
+            <div th:unless="${puedeSubir}">
+                <div class="alertamanuales-error alert alert-danger py-2">Este rol solo puede consultar los manuales desde la lista de máquinas.</div>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/Script.js/Maquinas_registradas.js}" defer></script>
+    <script th:inline="javascript">
+        (function () {
+            const radios = document.querySelectorAll('input[name="fuenteManual"]');
+            const pdfGroup = document.getElementById('manualPdfGroup');
+            const linkGroup = document.getElementById('manualLinkGroup');
+            const archivo = document.getElementById('archivo');
+            const link = document.getElementById('linkManual');
+            const quitarArchivo = document.getElementById('quitarArchivoManual');
+            if (!radios.length) return;
+
+            function actualizarArchivoSeleccionado() {
+                if (quitarArchivo) quitarArchivo.disabled = !archivo || archivo.files.length === 0;
+            }
+
+            function actualizarFuenteManual() {
+                const fuente = document.querySelector('input[name="fuenteManual"]:checked').value;
+                const esLink = fuente === 'link';
+                pdfGroup.classList.toggle('d-none', esLink);
+                linkGroup.classList.toggle('d-none', !esLink);
+                archivo.required = !esLink;
+                link.required = esLink;
+                if (esLink) { archivo.value = ''; } else { link.value = ''; }
+                actualizarArchivoSeleccionado();
+            }
+
+            if (archivo) archivo.addEventListener('change', actualizarArchivoSeleccionado);
+            if (quitarArchivo) quitarArchivo.addEventListener('click', function () {
+                archivo.value = '';
+                actualizarArchivoSeleccionado();
+                archivo.focus();
+            });
+            radios.forEach(function (radio) { radio.addEventListener('change', actualizarFuenteManual); });
+            actualizarFuenteManual();
+        })();
+    </script>
+        </main>
+        <footer class="border-top bg-white small text-secondary text-center py-3 d-print-none">&copy; 2026 FIMACOR &middot; Sistema de Control de Máquinas Textiles &middot; CMTC &ndash; SENA</footer>
+    </div>
+</div>
+<th:block th:replace="~{fragments/nav :: scripts}"></th:block>
+<script th:src="@{/Script.js/fimacor-buscar-select.js}"></script>
+</body>
+</html>

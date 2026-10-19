@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <title>FIMACOR | Registro de Usuario</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" th:href="@{/Estyle.css/fimacor-theme.css}">
+
+  <script th:inline="javascript">
+    const CONTEXTO = "";
+    window.FIMACOR_REGISTRO_ADMIN_ACTIVO = [[${registroAdministrativo}]];
+    window.FIMACOR_ATAJO_ROL_AUTORIZADO = [[${atajoRolVigente}]];
+  </script>
+
+  <script th:src="@{/Script.js/Fimacor_effects.js}" defer></script>
+  <script th:src="@{/Script.js/Registro_usuario.js}" defer></script>
+  <script th:src="@{/Script.js/Politica_tratamiento_datos.js}" defer></script>
+</head>
+<body class="registro-usuario-page d-flex flex-column min-vh-100 bg-dark" data-context="">
+
+  <div class="d-flex align-items-center px-3 px-lg-5 py-3 bg-dark border-bottom border-light border-opacity-10">
+    <div class="d-flex align-items-center gap-3">
+      <img alt="Logo SENA" th:src="@{/Img/Sena.png}" width="36" height="36" class="object-fit-contain"/>
+      <span class="text-white fw-bold fs-5">FIMACOR</span>
+    </div>
+  </div>
+
+  <div class="row g-0 flex-grow-1">
+
+    <div class="col-lg-4 d-none d-lg-flex flex-column justify-content-center px-5 py-5 bg-success-subtle text-white" data-bs-theme="dark">
+
+      <div class="badge align-self-start rounded-pill border border-success text-success-emphasis bg-success bg-opacity-25 px-3 py-2 mb-4">CMTC - SENA &middot; Ficha 3171084</div>
+
+      <h1 class="display-6 fw-bold mb-4">Crea tu cuenta<br>en <span class="text-success-emphasis">FIMACOR</span></h1>
+
+      <p class="text-white text-opacity-75 mb-4">Únete al sistema de gestión de maquinaria textil del SENA y accede
+      a todas las herramientas de mantenimiento y control.</p>
+
+      <ol class="list-unstyled d-flex flex-column gap-3 ps-4 mb-0">
+        <li class="d-flex align-items-center gap-3">
+          <span class="d-flex align-items-center justify-content-center rounded-circle border border-success text-success-emphasis bg-success bg-opacity-25 small fw-bold flex-shrink-0 px-2 py-1">1</span>
+          <span class="small">Completa tus datos personales y de acceso</span>
+        </li>
+        <li class="d-flex align-items-center gap-3">
+          <span class="d-flex align-items-center justify-content-center rounded-circle border border-success text-success-emphasis bg-success bg-opacity-25 small fw-bold flex-shrink-0 px-2 py-1">2</span>
+          <span class="small">Recibirás un código de verificación en tu correo</span>
+        </li>
+        <li class="d-flex align-items-center gap-3">
+          <span class="d-flex align-items-center justify-content-center rounded-circle border border-success text-success-emphasis bg-success bg-opacity-25 small fw-bold flex-shrink-0 px-2 py-1">3</span>
+          <span class="small">Ingresa el código y activa tu cuenta</span>
+        </li>
+        <li class="d-flex align-items-center gap-3">
+          <span class="d-flex align-items-center justify-content-center rounded-circle border border-success text-success-emphasis bg-success bg-opacity-25 small fw-bold flex-shrink-0 px-2 py-1">4</span>
+          <span class="small">¡Listo! ¡Ya puedes iniciar sesión en FIMACOR!</span>
+        </li>
+      </ol>
+
+    </div>
+
+    <div class="col-12 col-lg-8 d-flex p-3 p-lg-0">
+      <div class="w-100 bg-body-tertiary rounded-4 shadow-lg px-3 px-md-4 py-4">
+
+        <div class="text-center mb-3">
+          <img alt="Logo SENA" th:src="@{/Img/Sena.png}" width="48" height="48" class="object-fit-contain">
+          <h2 class="h4 fw-bold text-success-emphasis mt-2 mb-1">Registro de Usuario</h2>
+          <p class="small text-secondary mb-0">Completa el formulario para crear tu cuenta</p>
+        </div>
+
+        <div class="text-center rounded-pill bg-success-subtle text-success-emphasis fw-bold small px-3 py-1 mb-3">
+          Centro de Manufactura Textil y del Cuero &middot; SENA
+        </div>
+
+        <div id="mensajes"></div>
+
+        <div th:if="${param.caducada}" role="alert" class="alert alert-warning small py-2 px-3 mb-3">La página llevaba mucho tiempo abierta y se actualizó. Vuelve a llenar el formulario.</div>
+        <form id="formRegistro" th:action="@{/registro}" method="post" autocomplete="off">
+          <input type="hidden" name="origen" th:value="${registroAdministrativo} ? 'admin' : 'publico'">
+
+          <div class="row g-3">
+            <div class="field col-md-6">
+              <label for="nombre" class="form-label small fw-bold text-uppercase text-success mb-1">Nombre</label>
+              <input type="text" id="nombre" name="nombre" class="form-control" placeholder="Tu nombre" autocomplete="off" required>
+            </div>
+            <div class="field col-md-6">
+              <label for="apellido" class="form-label small fw-bold text-uppercase text-success mb-1">Apellido</label>
+              <input type="text" id="apellido" name="apellido" class="form-control" placeholder="Tu apellido" autocomplete="off" required>
+            </div>
+
+            <div class="field col-12">
+              <label for="correo" class="form-label small fw-bold text-uppercase text-success mb-1">Correo electrónico</label>
+              <input type="email" id="correo" name="correo" class="form-control" placeholder="ejemplo@gmail.com" oninput="validarCorreoEnVivo()" required>
+              <div id="correoStatus" class="form-text"></div>
+            </div>
+
+            <div class="field col-md-6">
+              <label for="telefono" class="form-label small fw-bold text-uppercase text-success mb-1">Teléfono</label>
+              <input type="tel" id="telefono" name="telefono" class="form-control" placeholder="3001234567" autocomplete="tel" required>
+            </div>
+            <div class="field col-md-6">
+              <label for="rol" class="form-label small fw-bold text-uppercase text-success mb-1">Rol</label>
+              <select id="rol" name="rol" class="form-select" required>
+                <option value="">Seleccione...</option>
+                <option th:each="r : ${roles}" th:value="${r.idRol}"
+                        th:selected="${#strings.toString(r.idRol) == rolAdminPreseleccionado}"
+                        th:text="${T(com.fimacor.comun.TextoVista).acentuarCatalogo(r.descripcionRol)}">Rol</option>
+              </select>
+            </div>
+
+            <div class="field col-md-6">
+              <label for="tipoDoc" class="form-label small fw-bold text-uppercase text-success mb-1">Tipo documento</label>
+              <select id="tipoDoc" name="tipoDoc" class="form-select" required>
+                <option value="">Seleccione...</option>
+                <option value="CC">Cédula de Ciudadanía</option>
+                <option value="TI">Tarjeta de Identidad</option>
+                <option value="CE">Cédula de Extranjería</option>
+              </select>
+            </div>
+            <div class="field col-md-6">
+              <label for="documento" class="form-label small fw-bold text-uppercase text-success mb-1">N&deg; documento</label>
+              <input type="text" id="documento" name="documento" class="form-control" placeholder="Número" autocomplete="off" inputmode="numeric" pattern="[0-9]*" required>
+            </div>
+
+            <div class="field col-12" th:if="${mostrarEstadoRegistro}">
+              <label for="activo" class="form-label small fw-bold text-uppercase text-success mb-1">Estado</label>
+              <select id="activo" name="activo" class="form-select" required>
+                <option value="1" selected>Activo</option>
+                <option value="0">No activo</option>
+              </select>
+            </div>
+
+            <div class="field col-md-6">
+              <label for="contrasena" class="form-label small fw-bold text-uppercase text-success mb-1">Contraseña</label>
+              <div class="pass-wrapper position-relative">
+                <input type="password" id="contrasena" name="contrasena" class="form-control pe-5" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" required>
+                <span class="toggle-pass position-absolute top-50 end-0 translate-middle-y me-3 d-flex text-success" id="toggleContrasena" role="button" onclick="toggleVer('contrasena', this)"></span>
+              </div>
+            </div>
+            <div class="field col-md-6">
+              <label for="confirmar" class="form-label small fw-bold text-uppercase text-success mb-1">Confirmar contraseña</label>
+              <div class="pass-wrapper position-relative">
+                <input type="password" id="confirmar" name="confirmar" class="form-control pe-5" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" required>
+                <span class="toggle-pass position-absolute top-50 end-0 translate-middle-y me-3 d-flex text-success" id="toggleConfirmar" role="button" onclick="toggleVer('confirmar', this)"></span>
+              </div>
+            </div>
+
+            <div class="col-12">
+              <div class="form-check">
+                <input type="checkbox" id="aceptaPolitica" name="aceptaPolitica" class="form-check-input" required>
+                <label class="form-check-label" for="aceptaPolitica">
+                  He leído y acepto la
+                  <a id="linkPolitica" class="fw-bold link-dark text-decoration-none" role="button">Política de Tratamiento de Datos Personales</a>
+                  conforme a la Ley 1581 de 2012.
+                </label>
+              </div>
+            </div>
+
+            <div class="col-md-6 d-grid">
+              <button type="button" class="btn btn-success fw-bold py-2 shadow-sm" id="btnRegistrar" onclick="validarFormulario()">Registrar Usuario</button>
+            </div>
+            <div class="col-md-6 d-grid">
+              <a th:href="@{/login}" class="btn btn-light border fw-bold py-2 shadow-sm">
+                Volver al inicio de sesión
+              </a>
+            </div>
+
+            <div class="col-12 text-center small text-secondary">
+              ¿Ya tienes cuenta? <a th:href="@{/login}" id="btnVolverLoginRegistro" class="link-success fw-bold text-decoration-none">Inicia sesión aquí</a>
+            </div>
+          </div>
+
+        </form>
+
+        <div class="text-center small text-secondary opacity-75 mt-3">
+          &copy; 2026 FIMACOR - CodeFusion YD | ADSO &middot; Ficha 3171084 &middot;
+          Gerente de Proyecto: María del Pilar Bonilla Moreno
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <div class="modal-login modal d-block d-none bg-dark bg-opacity-75" id="modalRegistro">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 rounded-4 shadow-lg p-4 text-center">
+        <div class="loader spinner-border text-success mx-auto mb-3" role="status"></div>
+        <h3 class="h5 fw-bold">Enviando código</h3>
+        <p class="text-secondary mb-0">Redirigiendo a la verificación...</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-login modal d-block d-none bg-dark bg-opacity-75" id="modalVolverLoginRegistro">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 rounded-4 shadow-lg p-4 text-center">
+        <div class="loader spinner-border text-success mx-auto mb-3" role="status"></div>
+        <h3 class="h5 fw-bold">Volviendo al inicio de sesión</h3>
+        <p class="text-secondary mb-0">Preparando el acceso seguro...</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="modalPolitica" class="modal d-block d-none bg-dark bg-opacity-75">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+      <div class="politica-contenido modal-content border-0 rounded-4 shadow-lg">
+        <div class="modal-header">
+          <div>
+            <h3 class="h5 fw-bold text-success-emphasis mb-1">Política de Tratamiento de Datos Personales</h3>
+            <p class="small text-secondary mb-0">Última actualización: junio de 2026 &middot; Ley Estatutaria 1581 de 2012 &middot; Decreto 1377 de 2013</p>
+          </div>
+          <button type="button" class="politica-cerrar btn-close" id="cerrarPolitica" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body small">
+          <h4 class="h6 fw-bold text-success mt-2">Bienvenido al sistema FIMACOR</h4>
+          <p>El Centro de Manufactura en Textil y Cuero (CMTC) del Servicio Nacional de Aprendizaje &ndash; SENA,
+          Regional Distrito Capital, con domicilio en la Carrera 30 # 17B-25 Sur, Bogotá D.C.,
+          en cumplimiento de la Ley Estatutaria 1581 de 2012 y el Decreto Reglamentario 1377 de 2013,
+          solicita su autorización para recolectar, almacenar, usar, actualizar y dar tratamiento
+          a los datos personales que registre en el sistema FIMACOR.</p>
+
+          <h4 class="h6 fw-bold text-success mt-3">1. Responsable del tratamiento</h4>
+          <p>Servicio Nacional de Aprendizaje &ndash; SENA &middot; Centro de Manufactura en Textil y Cuero</p>
+          <ul>
+            <li><strong>Dirección:</strong> Carrera 30 # 17B-25 Sur, Bogotá D.C.</li>
+            <li><strong>Subdirectora:</strong> Claudia Janet Gómez Larrotta</li>
+            <li><strong>Línea Bogotá:</strong> 601 736 60 60</li>
+            <li><strong>Línea gratuita:</strong> 018000 910 270</li>
+            <li><strong>WhatsApp:</strong> 316 876 02 55</li>
+            <li><strong>Web oficial:</strong> textilycuero.blogspot.com</li>
+            <li><strong>PQRS:</strong> sciudadanos.sena.edu.co</li>
+          </ul>
+
+          <h4 class="h6 fw-bold text-success mt-3">2. Términos de uso</h4>
+          <p>Al registrarse en FIMACOR usted acepta que:</p>
+          <ul>
+            <li>La información registrada es verídica, real y corresponde a sus datos personales.</li>
+            <li>El usuario y contraseña asignados son de carácter personal e intransferible.</li>
+            <li>La suplantación o ingreso de información falsa constituye un fraude con implicaciones legales y disciplinarias.</li>
+            <li>Es su responsabilidad mantener actualizada su información personal en el sistema.</li>
+            <li>Hará buen uso de la información a la que tenga acceso dentro de la plataforma.</li>
+          </ul>
+
+          <h4 class="h6 fw-bold text-success mt-3">3. Datos recolectados</h4>
+          <ul>
+            <li>Nombre y apellido</li>
+            <li>Correo electrónico</li>
+            <li>Número de teléfono</li>
+            <li>Tipo y número de documento de identidad</li>
+            <li>Rol dentro de la institución</li>
+          </ul>
+
+          <h4 class="h6 fw-bold text-success mt-3">4. Finalidad del tratamiento</h4>
+          <ul>
+            <li>Gestionar el acceso al sistema FIMACOR según el rol asignado.</li>
+            <li>Controlar y registrar el inventario de máquinas textiles del CMTC.</li>
+            <li>Enviar notificaciones y comunicaciones relacionadas con el uso del sistema.</li>
+            <li>Generar reportes estadísticos internos para la gestión del centro de formación.</li>
+            <li>Cumplir con los requerimientos administrativos del SENA y del Ministerio del Trabajo.</li>
+          </ul>
+
+          <h4 class="h6 fw-bold text-success mt-3">5. Derechos del titular</h4>
+          <p>Como titular de datos personales, usted tiene derecho a:</p>
+          <ul>
+            <li>Solicitar prueba de la autorización otorgada al CMTC - SENA.</li>
+            <li>Ser informado sobre el uso que se está dando a sus datos personales.</li>
+            <li>Presentar reclamaciones ante la Superintendencia de Industria y Comercio por violación a las normas de protección de datos.</li>
+            <li>Revocar su autorización o solicitar la eliminación de sus datos cuando corresponda.</li>
+            <li>Acceder gratuitamente a sus datos personales que han sido procesados.</li>
+          </ul>
+
+          <h4 class="h6 fw-bold text-success mt-3">6. Seguridad de la información</h4>
+          <p>Los datos registrados en FIMACOR son custodiados con mecanismos de seguridad informática
+          para evitar el acceso no autorizado por parte de terceros. El CMTC - SENA no distribuirá,
+          comercializará ni compartirá su información sin su autorización, salvo obligación legal
+          o requerimiento de entidades de control y veeduría del Estado.</p>
+
+          <h4 class="h6 fw-bold text-success mt-3">7. Vigencia y modificaciones</h4>
+          <p>Esta política podrá ser modificada por el CMTC - SENA en cumplimiento de actualizaciones
+          legislativas o reglamentarias, informando oportunamente a los usuarios sobre cualquier cambio.</p>
+
+          <h4 class="h6 fw-bold text-success mt-3">8. Contacto y PQRS</h4>
+          <p>Para ejercer sus derechos, presentar consultas o radicar PQRS relacionadas con el
+          tratamiento de sus datos, comuníquese con el CMTC - SENA a través de:</p>
+          <ul class="mb-0">
+            <li>Presencial: Carrera 30 # 17B-25 Sur, Bogotá &middot; Lunes a viernes 8:00 a.m. &ndash; 5:00 p.m.</li>
+            <li>Teléfono Bogotá: 601 736 60 60</li>
+            <li>Línea gratuita: 018000 910 270</li>
+            <li>WhatsApp: 316 876 02 55</li>
+            <li>PQRS en línea: sciudadanos.sena.edu.co</li>
+          </ul>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-aceptar-politica btn btn-success w-100 fw-bold" id="aceptarPoliticaBtn">He leído y acepto la política</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-login fimacor-rol-rapido-modal modal d-block d-none bg-dark bg-opacity-75" id="modalRolRapidoAdmin">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-login-content fimacor-rol-rapido-card modal-content border-0 rounded-4 shadow-lg p-4">
+        <button type="button" class="fimacor-rol-rapido-cerrar btn-close position-absolute top-0 end-0 m-3" id="cerrarRolRapidoAdmin" aria-label="Cerrar"></button>
+        <h3 class="h5 fw-bold text-success-emphasis pe-4">Acceso rapido administrativo</h3>
+        <p class="small text-secondary">Escribe la contrasena actual del administrador. Se valida contra la base de datos, asi que si cambia la contrasena, aqui tambien cambia automaticamente.</p>
+
+        <div class="fimacor-rol-rapido-auth vstack gap-2" id="rolRapidoAuth">
+          <div id="correoRolRapidoAdminWrap">
+            <label for="correoRolRapidoAdmin" class="form-label small fw-bold mb-1">Correo administrador</label>
+            <input type="email" id="correoRolRapidoAdmin" class="form-control" autocomplete="username" placeholder="correo del administrador">
+          </div>
+          <div>
+            <label for="contrasenaRolRapidoAdmin" class="form-label small fw-bold mb-1">Contrasena actual</label>
+            <input type="password" id="contrasenaRolRapidoAdmin" class="form-control" autocomplete="current-password" placeholder="Contrasena del usuario conectado">
+          </div>
+          <div id="codigoRolRapidoAdminWrap" hidden>
+            <label for="codigoRolRapidoAdmin" class="form-label small fw-bold mb-1">Codigo recibido</label>
+            <input type="text" id="codigoRolRapidoAdmin" class="form-control" autocomplete="one-time-code" inputmode="numeric" maxlength="6" placeholder="Codigo de 6 digitos">
+          </div>
+          <button type="button" class="btn btn-success fw-bold mt-2" id="validarRolRapidoAdmin">Validar acceso</button>
+          <div class="fimacor-rol-rapido-error small text-danger fw-semibold" id="errorRolRapidoAdmin" aria-live="polite"></div>
+        </div>
+
+        <div class="fimacor-rol-rapido-selector" id="rolRapidoSelector" hidden>
+          <p class="small text-secondary">Elige el rol para el usuario que estas registrando. Este modo administrativo mantiene la verificacion por correo.</p>
+          <div class="fimacor-rol-rapido-grid d-grid gap-2 mb-3">
+          <button type="button"
+                  th:each="r : ${roles}"
+                  th:with="rolNombre=${T(com.fimacor.comun.TextoVista).acentuarCatalogo(r.descripcionRol)}"
+                  class="fimacor-rol-rapido-opcion btn btn-outline-success text-start"
+                  th:data-rol-id="${r.idRol}"
+                  th:data-rol-nombre="${rolNombre}">
+            <span th:text="${rolNombre}">Rol</span>
+          </button>
+          </div>
+          <div class="fimacor-rol-rapido-acciones d-grid gap-2">
+            <button type="button" class="btn btn-success fw-bold" id="crearConRolRapidoAdmin">Crear usuario con este rol</button>
+            <button type="button" class="btn btn-light border fw-bold" id="aplicarRolRapidoAdmin">Solo aplicar rol al formulario</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const modal = document.getElementById("modalRolRapidoAdmin");
+      const cerrar = document.getElementById("cerrarRolRapidoAdmin");
+      const validar = document.getElementById("validarRolRapidoAdmin");
+      const aplicar = document.getElementById("aplicarRolRapidoAdmin");
+      const crear = document.getElementById("crearConRolRapidoAdmin");
+      const auth = document.getElementById("rolRapidoAuth");
+      const selector = document.getElementById("rolRapidoSelector");
+      const error = document.getElementById("errorRolRapidoAdmin");
+      const correoWrap = document.getElementById("correoRolRapidoAdminWrap");
+      const inputCorreo = document.getElementById("correoRolRapidoAdmin");
+      const inputContrasena = document.getElementById("contrasenaRolRapidoAdmin");
+      const codigoWrap = document.getElementById("codigoRolRapidoAdminWrap");
+      const inputCodigo = document.getElementById("codigoRolRapidoAdmin");
+      const selectRol = document.getElementById("rol");
+      let rolSeleccionado = selectRol ? selectRol.value : "";
+      let esperandoCodigo = false;
+
+      window.abrirSelectorRolAdminFimacor = function () {
+        if (!modal) return;
+        modal.classList.remove("d-none");
+        if (window.FIMACOR_REGISTRO_ADMIN_ACTIVO && window.FIMACOR_ATAJO_ROL_AUTORIZADO === true) {
+          mostrarPasoRoles();
+        } else {
+          mostrarPasoClave();
+        }
+        setTimeout(function () {
+          if (!window.FIMACOR_REGISTRO_ADMIN_ACTIVO && inputCorreo) {
+            inputCorreo.focus();
+          } else if (inputContrasena) {
+            inputContrasena.focus();
+          }
+        }, 80);
+        resaltarRol(rolSeleccionado);
+      };
+
+      function limpiarDatosRegistroRapido() {
+        localStorage.removeItem("datosRegistroFimacorClave");
+        localStorage.removeItem("fimacorRolRapidoAuthOk");
+      }
+      function mostrarPasoClave() {
+        esperandoCodigo = false;
+        if (auth) auth.hidden = false;
+        if (selector) selector.hidden = true;
+        if (error) error.textContent = "";
+        if (inputContrasena) inputContrasena.value = "";
+        if (inputCodigo) inputCodigo.value = "";
+        if (inputContrasena) inputContrasena.readOnly = false;
+        if (inputCorreo) inputCorreo.readOnly = false;
+        if (codigoWrap) codigoWrap.hidden = true;
+        if (validar) validar.textContent = "Validar acceso";
+        if (correoWrap) correoWrap.hidden = window.FIMACOR_REGISTRO_ADMIN_ACTIVO === true;
+      }
+
+      function mostrarPasoRoles() {
+        if (auth) auth.hidden = true;
+        if (selector) selector.hidden = false;
+        if (error) error.textContent = "";
+      }
+
+      function cerrarModal() {
+        if (modal) modal.classList.add("d-none");
+      }
+
+      function resaltarRol(idRol) {
+        document.querySelectorAll(".fimacor-rol-rapido-opcion").forEach(function (boton) {
+          const activo = boton.getAttribute("data-rol-id") === idRol;
+          boton.classList.toggle("seleccionado", activo);
+          boton.classList.toggle("active", activo);
+        });
+      }
+
+      document.querySelectorAll(".fimacor-rol-rapido-opcion").forEach(function (boton) {
+        boton.addEventListener("click", function () {
+          rolSeleccionado = boton.getAttribute("data-rol-id") || "";
+          resaltarRol(rolSeleccionado);
+        });
+      });
+
+      function aplicarRolSeleccionado() {
+        if (!rolSeleccionado) {
+          if (error) error.textContent = "Selecciona un rol antes de continuar.";
+          return false;
+        }
+        if (selectRol) {
+          selectRol.value = rolSeleccionado;
+          selectRol.dispatchEvent(new Event("change", { bubbles: true }));
+        }
+        return true;
+      }
+
+      async function validarClaveAdmin() {
+        const clave = inputContrasena ? inputContrasena.value.trim() : "";
+        const correo = inputCorreo ? inputCorreo.value.trim() : "";
+        const codigo = inputCodigo ? inputCodigo.value.trim() : "";
+        if (!esperandoCodigo && !window.FIMACOR_REGISTRO_ADMIN_ACTIVO && !correo) {
+          if (error) error.textContent = "Escribe el correo del administrador.";
+          return;
+        }
+        if (!esperandoCodigo && !clave) {
+          if (error) error.textContent = "Escribe la contrasena actual.";
+          return;
+        }
+        if (esperandoCodigo && !/^\d{6}$/.test(codigo)) {
+          const faltan = Math.max(0, 6 - codigo.length);
+          if (error) {
+            error.textContent = codigo.length === 0
+              ? "Escribe el codigo de 6 digitos."
+              : "Ese codigo esta incompleto: faltan " + faltan + " digito" + (faltan === 1 ? "." : "s.");
+          }
+          if (inputCodigo) inputCodigo.focus();
+          return;
+        }
+        if (validar) validar.disabled = true;
+        if (error) error.textContent = esperandoCodigo ? "Verificando codigo..." : "Validando acceso y enviando codigo...";
+        try {
+          const cuerpo = esperandoCodigo
+            ? "codigo=" + encodeURIComponent(codigo)
+            : "correo=" + encodeURIComponent(correo) + "&contrasena=" + encodeURIComponent(clave);
+          const respuesta = await fetch(CONTEXTO + "/AdminShortcutAuthServlet", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8" },
+            body: cuerpo
+          });
+          const datos = await respuesta.json().catch(function () { return {}; });
+          if (!respuesta.ok || !datos.ok) {
+            if (error) error.textContent = datos.mensaje || "No se pudo validar la contrasena.";
+            return;
+          }
+          if (datos.requiereCodigo) {
+            esperandoCodigo = true;
+            if (codigoWrap) codigoWrap.hidden = false;
+            if (inputContrasena) inputContrasena.readOnly = true;
+            if (inputCorreo) inputCorreo.readOnly = true;
+            if (validar) validar.textContent = "Verificar codigo";
+            if (error) error.textContent = datos.mensaje || "Codigo enviado al administrador.";
+            setTimeout(function () {
+              if (inputCodigo) inputCodigo.focus();
+            }, 80);
+            return;
+          }
+          if (!window.FIMACOR_REGISTRO_ADMIN_ACTIVO) {
+            window.location.href = CONTEXTO + "/registro?origen=admin&abrirRol=1";
+            return;
+          }
+          mostrarPasoRoles();
+        } catch (e) {
+          if (error) error.textContent = "No se pudo contactar el servidor. Revisa que el proyecto este ejecutandose.";
+        } finally {
+          if (validar) validar.disabled = false;
+        }
+      }
+
+      if (validar) validar.addEventListener("click", validarClaveAdmin);
+      if (inputContrasena) {
+        inputContrasena.addEventListener("keydown", function (event) {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            validarClaveAdmin();
+          }
+        });
+      }
+      if (inputCodigo) {
+        inputCodigo.addEventListener("input", function () {
+          inputCodigo.value = inputCodigo.value.replace(/\D/g, "").slice(0, 6);
+          if (esperandoCodigo && error) {
+            if (inputCodigo.value.length === 6) {
+              error.textContent = "Codigo completo. Ahora pulsa Verificar codigo.";
+            } else if (inputCodigo.value.length > 0) {
+              const faltan = 6 - inputCodigo.value.length;
+              error.textContent = "Faltan " + faltan + " digito" + (faltan === 1 ? "." : "s.");
+            } else {
+              error.textContent = "Escribe el codigo de 6 digitos.";
+            }
+          }
+        });
+        inputCodigo.addEventListener("keydown", function (event) {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            validarClaveAdmin();
+          }
+        });
+      }
+      if (inputCorreo) {
+        inputCorreo.addEventListener("keydown", function (event) {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            if (inputContrasena) inputContrasena.focus();
+          }
+        });
+      }
+
+      if (aplicar) {
+        aplicar.addEventListener("click", function () {
+          if (aplicarRolSeleccionado()) cerrarModal();
+        });
+      }
+
+      if (crear) {
+        crear.addEventListener("click", function () {
+          if (!aplicarRolSeleccionado()) return;
+          cerrarModal();
+          if (typeof validarFormulario === "function") validarFormulario();
+        });
+      }
+
+      if (cerrar) cerrar.addEventListener("click", cerrarModal);
+      if (modal) {
+        const tarjeta = modal.querySelector(".modal-content");
+        modal.addEventListener("click", function (event) {
+          if (!tarjeta.contains(event.target)) cerrarModal();
+        });
+      }
+
+      limpiarDatosRegistroRapido();
+
+      function autorizacionReciente() {
+        const marca = Number(localStorage.getItem("fimacorRolRapidoAuthOk") || "0");
+        return marca > 0 && (Date.now() - marca) < 120000;
+      }
+
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("abrirRol") === "1") {
+        setTimeout(window.abrirSelectorRolAdminFimacor, 250);
+      }
+    })();
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"/>
+  <script th:src="@{/Script.js/fimacor-zoom.js}"></script>
+  <title>Máquina | FIMACOR</title>
+  <th:block th:replace="~{fragments/qr-material :: recursos}"></th:block>
+</head>
+<body class="md-body"
+      th:with="estado=${maquina.estado != null ? maquina.estado.nombreTipo : 'Sin estado'},
+               garantiaVigente=${maquina.tieneGarantia and maquina.fechaGarantia != null and !maquina.fechaGarantia.isBefore(T(java.time.LocalDate).now())}">
+  <header th:replace="~{fragments/qr-material :: barra('Ficha de máquina · SENA')}"></header>
+
+  <main class="c md-page">
+
+    <section class="top md-hero" aria-labelledby="nombreMaquina">
+      <span class="md-icon md-hero__marca" aria-hidden="true">precision_manufacturing</span>
+      <span class="md-label-small md-hero__overline">Máquina registrada</span>
+      <h1 class="md-display-small md-hero__title" id="nombreMaquina" th:text="${maquina.descripcion}">Máquina</h1>
+      <div class="md-hero__meta">
+        <span class="md-chip md-chip--code md-mono"
+              th:text="${maquina.codigoSena != null and !maquina.codigoSena.isBlank()} ? ${maquina.codigoSena} : 'Sin código'">SENA-0000</span>
+        <span class="md-chip" th:classappend="${T(com.fimacor.maquinas.util.MaquinaTexto).claseChipMaterial(estado)}">
+          <span class="md-chip__dot" aria-hidden="true"></span><span th:text="${estado}">Operativa</span>
+        </span>
+        <span class="md-chip md-chip--success" th:if="${garantiaVigente}">
+          <span class="md-icon md-icon--sm" aria-hidden="true">verified</span>En garantía
+        </span>
+      </div>
+    </section>
+
+    <div class="err md-banner md-banner--error" role="alert" th:if="${maquina.baja}">
+      <span class="md-icon md-icon--fill" aria-hidden="true">error</span>
+      <div>
+        <p class="md-title-medium">Máquina dada de baja</p>
+        <p>Esta máquina ya no está en servicio. La ficha queda disponible como registro histórico.</p>
+      </div>
+    </div>
+
+    <section class="datos md-card" aria-labelledby="tituloDatos">
+      <div class="md-card__header">
+        <h2 class="md-title-medium" id="tituloDatos">Información técnica</h2>
+      </div>
+      <ul class="md-list" data-md-stagger>
+        <li class="dato md-list-item">
+          <span class="md-list-item__icon"><span class="md-icon" aria-hidden="true">category</span></span>
+          <span class="md-list-item__text">
+            <span class="md-label-medium md-muted">Tipo</span>
+            <span class="md-body-large" th:text="${maquina.tipoMaquina != null ? maquina.tipoMaquina.descripcionMaquina : 'Sin tipo'}">Tipo</span>
+          </span>
+        </li>
+        <li class="dato md-list-item">
+          <span class="md-list-item__icon"><span class="md-icon" aria-hidden="true">sell</span></span>
+          <span class="md-list-item__text">
+            <span class="md-label-medium md-muted">Marca y modelo</span>
+            <span class="md-body-large" th:text="(${maquina.marca != null ? maquina.marca.descripcionMarca : 'Sin marca'}) + ' · ' + (${maquina.modelo != null ? maquina.modelo.descripcionModelo : 'Sin modelo'})">Marca · Modelo</span>
+          </span>
+        </li>
+        <li class="dato md-list-item">
+          <span class="md-list-item__icon"><span class="md-icon" aria-hidden="true">apartment</span></span>
+          <span class="md-list-item__text">
+            <span class="md-label-medium md-muted">Sede</span>
+            <span class="md-body-large" th:text="${maquina.sede != null ? maquina.sede.nombreSede : 'Sin sede'}">Sede</span>
+          </span>
+        </li>
+        <li class="dato md-list-item">
+          <span class="md-list-item__icon"><span class="md-icon" aria-hidden="true">grid_view</span></span>
+          <span class="md-list-item__text">
+            <span class="md-label-medium md-muted">Área</span>
+            <span class="md-body-large" th:text="${maquina.area != null and !maquina.area.isBlank() ? maquina.area : 'Sin área'}">Área</span>
+          </span>
+        </li>
+        <li class="dato md-list-item">
+          <span class="md-list-item__icon"><span class="md-icon" aria-hidden="true">location_on</span></span>
+          <span class="md-list-item__text">
+            <span class="md-label-medium md-muted">Ambiente</span>
+            <span class="md-body-large" th:text="${maquina.ambiente != null ? maquina.ambiente.descripcionAmbiente : 'Sin ambiente'}">Ambiente</span>
+          </span>
+        </li>
+      </ul>
+    </section>
+
+    <section class="acciones md-stack" aria-label="Acciones" data-md-stagger>
+      <a class="primario md-btn md-btn--filled md-btn--xl md-btn--block"
+         th:href="@{/FichaTecnicaPublicaServlet(id=${maquina.idMaquinas})}">
+        <span class="md-icon" aria-hidden="true">picture_as_pdf</span>
+        <span>Ver ficha técnica completa</span>
+      </a>
+      <a class="secundario md-btn md-btn--tonal md-btn--block" th:if="${!maquina.baja}"
+         th:href="@{/ReporteNovedadQrServlet(id=${maquina.idMaquinas})}">
+        <span class="md-icon" aria-hidden="true">report</span>
+        <span>Soy Instructor: reportar una novedad</span>
+      </a>
+      <p class="ayuda md-body-medium md-muted md-row md-row--nowrap" th:if="${!maquina.baja}">
+        <span class="md-icon md-icon--sm" aria-hidden="true">shield_lock</span>
+        <span>Para reportar se pide el código de validación del Instructor.</span>
+      </p>
+    </section>
+
+    <footer th:replace="~{fragments/qr-material :: pie}"></footer>
+  </main>
+
+  <script th:replace="~{fragments/qr-material :: scripts}"></script>
+</body>
+</html>

@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes"/>
+    <title>FIMACOR | Importar datos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,300..600,0..1,0&display=block" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous"/>
+    <link rel="stylesheet" th:href="@{/Estyle.css/fimacor-theme.css}"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+" crossorigin="anonymous"/>
+</head>
+<body class="bg-body-tertiary">
+<div class="row g-0 min-vh-100">
+    <th:block th:replace="~{fragments/nav :: sidebar}"></th:block>
+    <div class="col-12 col-lg-9 col-xxl-10 d-flex flex-column">
+        <th:block th:replace="~{fragments/nav :: topbar('Importar datos')}"></th:block>
+        <main class="flex-grow-1 px-3 px-md-4 px-xxl-5 py-4">
+
+            <section class="card border-0 rounded-4 shadow-sm bg-success text-white position-relative overflow-hidden mb-3">
+                <span class="material-symbols-rounded position-absolute top-0 end-0 mt-2 me-3 opacity-25 display-1" aria-hidden="true">upload_file</span>
+                <div class="card-body p-4 position-relative">
+                    <p class="text-uppercase small fw-semibold opacity-75 mb-1">Administración</p>
+                    <h1 class="h3 fw-bold mb-2">Importar datos desde Excel</h1>
+                    <p class="mb-0 col-lg-9 px-0">Descarga la plantilla, entrégasela a quien tenga los datos y súbela llena: el sistema la lee tal cual, revisa cada fila y, antes de guardar nada, te muestra qué va a pasar. Hay una plantilla para usuarios, máquinas, novedades y mantenimientos.</p>
+                </div>
+            </section>
+
+            <div class="alert alert-danger d-flex align-items-start gap-2 rounded-4" role="alert" th:if="${error != null}">
+                <span class="material-symbols-rounded" aria-hidden="true">error</span><span th:text="${error}">Error</span>
+            </div>
+
+            <ul class="nav nav-pills gap-2 mb-3 flex-wrap" th:if="${resultado == null and analisis == null and analisisDatos == null and resultadoDatos == null}">
+                <li class="nav-item" th:each="t : ${tipos}">
+                    <a class="nav-link rounded-pill d-flex align-items-center gap-2 border" th:classappend="${t == tipo} ? 'active bg-success border-success' : 'text-success bg-white'"
+                       th:href="@{/importacion(tipo=${t.clave})}">
+                        <span class="badge rounded-pill text-bg-light border" th:text="${t.orden()}">1</span>
+                        <span class="material-symbols-rounded fs-5" aria-hidden="true" th:text="${t.icono}">group</span>
+                        <span th:text="${t.nombre}">Usuarios</span>
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Resultado final -->
+            <section th:if="${resultado != null}">
+                <div class="alert alert-success d-flex align-items-center gap-2 rounded-4" role="status">
+                    <span class="material-symbols-rounded fs-3" aria-hidden="true">task_alt</span>
+                    <strong>La importación terminó correctamente.</strong>
+                </div>
+                <div class="row row-cols-2 row-cols-lg-4 g-3 mb-3">
+                    <div class="col"><div class="card h-100 border-0 shadow-sm rounded-4"><div class="card-body">
+                        <div class="display-6 fw-bold text-success" th:text="${resultado.creadas}">0</div><div class="fw-semibold">Máquinas nuevas</div></div></div></div>
+                    <div class="col"><div class="card h-100 border-0 shadow-sm rounded-4"><div class="card-body">
+                        <div class="display-6 fw-bold" th:text="${resultado.actualizadas}">0</div><div class="fw-semibold">Máquinas actualizadas</div></div></div></div>
+                    <div class="col"><div class="card h-100 border-0 shadow-sm rounded-4"><div class="card-body">
+                        <div class="display-6 fw-bold" th:text="${resultado.asignadas}">0</div><div class="fw-semibold">Cuentadantes asignados</div></div></div></div>
+                    <div class="col"><div class="card h-100 border-0 shadow-sm rounded-4"><div class="card-body">
+                        <div class="display-6 fw-bold" th:text="${resultado.omitidas}">0</div><div class="fw-semibold">Omitidas</div>
+                        <div class="small text-secondary">ya existían o están dadas de baja</div></div></div></div>
+                </div>
+                <div class="card border-0 shadow-sm rounded-4 mb-3" th:if="${resultado.catalogosCreados > 0}">
+                    <div class="card-body">
+                        <h2 class="h6 fw-bold mb-2">Se crearon en los catálogos</h2>
+                        <div class="d-flex flex-wrap gap-2">
+                            <span class="badge rounded-pill text-bg-success py-2 px-3" th:each="c : ${resultado.catalogos}" th:text="${c.value} + ' ' + ${c.key}">1 Marcas</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card border-0 shadow-sm rounded-4 mb-3" th:if="${!#lists.isEmpty(resultado.avisos)}">
+                    <div class="card-body">
+                        <h2 class="h6 fw-bold mb-2">Para revisar</h2>
+                        <ul class="small mb-0"><li th:each="a : ${resultado.avisos}" th:text="${a}">aviso</li></ul>
+                    </div>
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                    <a th:href="@{/maquinas/administracion}" class="btn btn-success rounded-pill">Ver las máquinas</a>
+                    <a th:href="@{/gerencia}" class="btn btn-outline-success rounded-pill">Ver el tablero de gerencia</a>
+                    <a th:href="@{/importacion(tipo='maquinas')}" class="btn btn-outline-secondary rounded-pill">Importar otro archivo</a>
+                </div>
+            </section>
+
+            <!-- Paso 1 y 2: preparar y subir -->
+            <section th:if="${resultado == null and analisis == null and analisisDatos == null and resultadoDatos == null}">
+                <div class="row g-3">
+                    <div class="col-12 col-xl-5">
+                        <div class="card h-100 border-0 shadow-sm rounded-4">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span class="rounded-circle bg-success text-white d-inline-flex align-items-center justify-content-center fw-bold" style="width:2rem;height:2rem">1</span>
+                                    <h2 class="h5 fw-bold mb-0">Prepara el archivo</h2>
+                                </div>
+                                <p class="small text-secondary mb-2"><strong th:text="${tipo.nombre}">Máquinas</strong>: <span th:text="${tipo.descripcion}">descripción</span> Descarga la plantilla (trae los títulos exactos y listas desplegables con los valores del sistema) y llénala sin cambiar los títulos de la fila 1.</p>
+                                <ul class="small text-secondary ps-3" th:if="${tipo.clave == 'usuarios'}">
+                                    <li><strong>Obligatorios:</strong> nombres, apellidos, número de documento, correo y rol.</li>
+                                    <li>Si el correo o el documento ya existen, esa fila se <strong>omite</strong> (no se cambia a nadie).</li>
+                                    <li>Si no pones contraseña, el sistema <strong>genera una</strong> y te deja descargar la lista al terminar.</li>
+                                </ul>
+                                <ul class="small text-secondary ps-3" th:if="${tipo.clave == 'maquinas'}">
+                                    <li><strong>Obligatorios:</strong> Código SENA, Tipo de máquina, Estado y Ambiente (y la Sede, salvo que elijas una por defecto).</li>
+                                    <li>Si el código ya existe, esa máquina se <strong>actualiza</strong>.</li>
+                                    <li>Lo que no exista (tipo, marca, ambiente…) se <strong>crea</strong>. Para asignar cuentadante, impórtalo antes en Usuarios.</li>
+                                </ul>
+                                <ul class="small text-secondary ps-3" th:if="${tipo.clave == 'novedades'}">
+                                    <li><strong>Obligatorios:</strong> código de la máquina, fecha, tipo de falla, descripción, quién reportó y estado.</li>
+                                    <li>La máquina y las personas deben existir: importa antes <strong>Usuarios</strong> y <strong>Máquinas</strong>.</li>
+                                    <li>Las novedades ya registradas se omiten, así que puedes volver a subir el archivo sin duplicar.</li>
+                                </ul>
+                                <ul class="small text-secondary ps-3" th:if="${tipo.clave == 'mantenimientos'}">
+                                    <li><strong>Obligatorios:</strong> código de la máquina, tipo, fecha, frecuencia, técnico, tareas y estado.</li>
+                                    <li>La máquina y el técnico deben existir: importa antes <strong>Usuarios</strong> y <strong>Máquinas</strong>.</li>
+                                    <li>Los mantenimientos ya registrados se omiten, así que puedes volver a subir el archivo sin duplicar.</li>
+                                </ul>
+                                <p class="small text-secondary">Acepta .xlsx, .xls y .csv (hasta 5000 filas). Orden recomendado: Usuarios → Máquinas → Novedades → Mantenimientos.</p>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <a th:href="@{/importacion/plantilla(tipo=${tipo.clave})}" class="btn btn-success rounded-pill d-inline-flex align-items-center gap-1">
+                                        <span class="material-symbols-rounded" aria-hidden="true">download</span> Descargar plantilla de <span th:text="${#strings.toLowerCase(tipo.nombre)}">máquinas</span>
+                                    </a>
+                                    <a th:href="@{/importacion/plantillas.zip}" class="btn btn-outline-success rounded-pill d-inline-flex align-items-center gap-1">
+                                        <span class="material-symbols-rounded" aria-hidden="true">folder_zip</span> Las 4 plantillas (.zip)
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-xl-7">
+                        <div class="card h-100 border-0 shadow-sm rounded-4">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center gap-2 mb-3">
+                                    <span class="rounded-circle bg-success text-white d-inline-flex align-items-center justify-content-center fw-bold" style="width:2rem;height:2rem">2</span>
+                                    <h2 class="h5 fw-bold mb-0">Sube el archivo y revísalo</h2>
+                                </div>
+                                <form th:action="@{/importacion/revisar}" method="post" enctype="multipart/form-data" class="d-flex flex-column gap-3">
+                                    <input type="hidden" name="tipo" th:value="${tipo.clave}"/>
+                                    <div>
+                                        <label for="archivo" class="form-label fw-semibold small text-success">Archivo de Excel o CSV de <span th:text="${#strings.toLowerCase(tipo.nombre)}">máquinas</span></label>
+                                        <input class="form-control" type="file" id="archivo" name="archivo" accept=".xlsx,.xls,.csv,.txt" required/>
+                                    </div>
+                                    <div th:if="${tipo.clave == 'maquinas'}">
+                                        <label for="sedePorDefecto" class="form-label fw-semibold small text-success">Sede por defecto <span class="text-secondary fw-normal">(solo se usa si una fila no trae sede)</span></label>
+                                        <select class="form-select" id="sedePorDefecto" name="sedePorDefecto">
+                                            <option value="">Ninguna: la sede debe venir en el archivo</option>
+                                            <option th:each="s : ${sedes}" th:value="${s.id}" th:text="${s.nombre}"></option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <button type="submit" class="btn btn-success rounded-pill d-inline-flex align-items-center gap-1 fw-bold">
+                                            <span class="material-symbols-rounded" aria-hidden="true">fact_check</span> Revisar archivo
+                                        </button>
+                                        <div class="form-text">Todavía no se guarda nada: primero verás un resumen.</div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Paso 3: revision -->
+            <section th:if="${analisis != null}">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="rounded-circle bg-success text-white d-inline-flex align-items-center justify-content-center fw-bold" style="width:2rem;height:2rem">3</span>
+                    <h2 class="h5 fw-bold mb-0">Revisa antes de importar</h2>
+                    <span class="small text-secondary ms-2" th:text="${analisis.archivo}">archivo.xlsx</span>
+                </div>
+
+                <div class="row row-cols-2 row-cols-lg-5 g-3 mb-3">
+                    <div class="col"><div class="card h-100 border-0 shadow-sm rounded-4"><div class="card-body">
+                        <div class="display-6 fw-bold" th:text="${analisis.totalFilas}">0</div><div class="fw-semibold">Filas leídas</div></div></div></div>
+                    <div class="col"><div class="card h-100 border-0 shadow-sm rounded-4"><div class="card-body">
+                        <div class="display-6 fw-bold text-success" th:text="${analisis.nuevas}">0</div><div class="fw-semibold">Se crearán</div>
+                        <div class="small text-secondary">máquinas nuevas</div></div></div></div>
+                    <div class="col"><div class="card h-100 border-0 shadow-sm rounded-4"><div class="card-body">
+                        <div class="display-6 fw-bold text-primary" th:text="${analisis.actualizan}">0</div><div class="fw-semibold">Se actualizarán</div>
+                        <div class="small text-secondary">ya existen</div></div></div></div>
+                    <div class="col"><div class="card h-100 border-0 shadow-sm rounded-4"><div class="card-body">
+                        <div class="display-6 fw-bold text-secondary" th:text="${analisis.omitidas}">0</div><div class="fw-semibold">Se omitirán</div>
+                        <div class="small text-secondary">dadas de baja</div></div></div></div>
+                    <div class="col"><div class="card h-100 border-0 shadow-sm rounded-4" th:classappend="${analisis.conError > 0} ? 'border border-danger'"><div class="card-body">
+                        <div class="display-6 fw-bold" th:classappend="${analisis.conError > 0} ? 'text-danger'" th:text="${analisis.conError}">0</div><div class="fw-semibold">Con errores</div>
+                        <div class="small text-secondary">no se importan</div></div></div></div>
+                </div>
+
+                <div class="accordion mb-3" id="revision">
+                    <div class="accordion-item border-0 shadow-sm rounded-4 overflow-hidden mb-2">
+                        <h3 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c-columnas">
+                                Columnas que reconocí (<span th:text="${#lists.size(analisis.columnasDetectadas)}">0</span>)
+                                <span class="badge rounded-pill text-bg-light border ms-2" th:if="${!#lists.isEmpty(analisis.columnasIgnoradas)}" th:text="${#lists.size(analisis.columnasIgnoradas)} + ' ignoradas'">ignoradas</span>
+                            </button>
+                        </h3>
+                        <div id="c-columnas" class="accordion-collapse collapse" data-bs-parent="#revision"><div class="accordion-body small">
+                            <ul class="mb-2"><li th:each="c : ${analisis.columnasDetectadas}" th:text="${c}">columna</li></ul>
+                            <div th:if="${!#lists.isEmpty(analisis.columnasIgnoradas)}" class="text-secondary">
+                                <strong>Ignoradas (el sistema no las guarda):</strong> <span th:text="${#strings.listJoin(analisis.columnasIgnoradas, ', ')}">otras</span>
+                            </div>
+                        </div></div>
+                    </div>
+                    <div class="accordion-item border-0 shadow-sm rounded-4 overflow-hidden mb-2" th:if="${analisis.totalCatalogosNuevos > 0}">
+                        <h3 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c-catalogos">
+                                Se crearán en los catálogos (<span th:text="${analisis.totalCatalogosNuevos}">0</span>)
+                            </button>
+                        </h3>
+                        <div id="c-catalogos" class="accordion-collapse collapse" data-bs-parent="#revision"><div class="accordion-body small">
+                            <p class="text-secondary">Si alguno es un error de digitación (por ejemplo una marca mal escrita), cancela, corrige el Excel y vuelve a subirlo.</p>
+                            <div class="mb-2" th:each="c : ${analisis.catalogosNuevos}">
+                                <strong th:text="${c.key} + ' (' + ${#lists.size(c.value)} + ')'">Marcas</strong>
+                                <div class="d-flex flex-wrap gap-1 mt-1">
+                                    <span class="badge rounded-pill text-bg-light border fw-normal" th:each="n : ${c.value}" th:text="${n}">nombre</span>
+                                </div>
+                            </div>
+                        </div></div>
+                    </div>
+                    <div class="accordion-item border-0 shadow-sm rounded-4 overflow-hidden mb-2" th:if="${!#lists.isEmpty(filasConError)}">
+                        <h3 class="accordion-header">
+                            <button class="accordion-button text-danger fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#c-errores">
+                                Filas con errores (<span th:text="${analisis.conError}">0</span>): no se importarán
+                            </button>
+                        </h3>
+                        <div id="c-errores" class="accordion-collapse collapse show" data-bs-parent="#revision"><div class="accordion-body p-0">
+                            <div class="table-responsive" style="max-height: 20rem">
+                                <table class="table table-sm align-middle mb-0 small">
+                                    <thead class="table-light"><tr><th>Fila</th><th>Código</th><th>Qué pasa</th></tr></thead>
+                                    <tbody>
+                                        <tr th:each="f : ${filasConError}">
+                                            <td th:text="${f.fila}">2</td><td class="text-nowrap" th:text="${f.codigo}">cod</td>
+                                            <td><div th:each="e : ${f.errores}" th:text="${e}">error</div></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <p class="small text-secondary px-3 py-2 mb-0" th:if="${analisis.conError > 200}">Se muestran las primeras 200.</p>
+                        </div></div>
+                    </div>
+                    <div class="accordion-item border-0 shadow-sm rounded-4 overflow-hidden mb-2" th:if="${!#lists.isEmpty(filasConAviso)}">
+                        <h3 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c-avisos">
+                                Avisos (<span th:text="${analisis.conAvisos}">0</span>): se importan, pero conviene mirarlos
+                            </button>
+                        </h3>
+                        <div id="c-avisos" class="accordion-collapse collapse" data-bs-parent="#revision"><div class="accordion-body p-0">
+                            <div class="table-responsive" style="max-height: 20rem">
+                                <table class="table table-sm align-middle mb-0 small">
+                                    <thead class="table-light"><tr><th>Fila</th><th>Código</th><th>Aviso</th></tr></thead>
+                                    <tbody>
+                                        <tr th:each="f : ${filasConAviso}">
+                                            <td th:text="${f.fila}">2</td><td class="text-nowrap" th:text="${f.codigo}">cod</td>
+                                            <td><div th:each="e : ${f.avisos}" th:text="${e}">aviso</div></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div></div>
+                    </div>
+                    <div class="accordion-item border-0 shadow-sm rounded-4 overflow-hidden">
+                        <h3 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c-muestra">Así se verán las primeras filas</button>
+                        </h3>
+                        <div id="c-muestra" class="accordion-collapse collapse" data-bs-parent="#revision"><div class="accordion-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-sm align-middle mb-0 small">
+                                    <thead class="table-light"><tr><th>Fila</th><th>Código</th><th>Tipo</th><th>Marca / Modelo</th><th>Estado</th><th>Ambiente</th><th>Qué pasará</th></tr></thead>
+                                    <tbody>
+                                        <tr th:each="f : ${muestra}">
+                                            <td th:text="${f.fila}">2</td>
+                                            <td class="text-nowrap fw-semibold" th:text="${f.codigo}">cod</td>
+                                            <td th:text="${f.tipo}">tipo</td>
+                                            <td th:text="${f.marca} + ' ' + ${f.modelo}">marca</td>
+                                            <td th:text="${f.estado}">estado</td>
+                                            <td th:text="${f.ambiente}">ambiente</td>
+                                            <td>
+                                                <span class="badge rounded-pill" th:classappend="${f.accion == 'NUEVA'} ? 'text-bg-success' : (${f.accion == 'ACTUALIZA'} ? 'text-bg-primary' : (${f.accion == 'ERROR'} ? 'text-bg-danger' : 'text-bg-secondary'))"
+                                                      th:text="${f.accion == 'NUEVA'} ? 'Se crea' : (${f.accion == 'ACTUALIZA'} ? 'Se actualiza' : (${f.accion == 'ERROR'} ? 'Error' : 'Se omite'))">Se crea</span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div></div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-body">
+                        <form th:action="@{/importacion/confirmar}" method="post" class="d-flex flex-column gap-3"
+                              onsubmit="return confirm('¿Importar ahora? Se guardarán los cambios en el sistema.');">
+                            <input type="hidden" name="token" th:value="${analisis.token}"/>
+                            <div class="form-check form-switch" th:if="${analisis.actualizan > 0}">
+                                <input class="form-check-input" type="checkbox" role="switch" id="actualizar" name="actualizar" value="true" checked/>
+                                <label class="form-check-label" for="actualizar">Actualizar las <strong th:text="${analisis.actualizan}">0</strong> máquinas que ya existen con los datos del archivo
+                                    <span class="d-block small text-secondary">Si lo desactivas, esas máquinas se omiten y solo se crean las nuevas.</span></label>
+                            </div>
+                            <div class="d-flex flex-wrap gap-2">
+                                <button type="submit" class="btn btn-success rounded-pill fw-bold d-inline-flex align-items-center gap-1" th:disabled="${importables == 0}">
+                                    <span class="material-symbols-rounded" aria-hidden="true">cloud_upload</span>
+                                    Importar <span th:text="${importables}">0</span> máquinas
+                                </button>
+                                <a th:href="@{/importacion(tipo='maquinas')}" class="btn btn-outline-secondary rounded-pill">Cancelar y subir otro archivo</a>
+                            </div>
+                            <div class="small text-secondary" th:if="${analisis.conError > 0}">Las filas con errores se saltan; el resto sí se importa. También puedes cancelar, corregir el Excel y subirlo de nuevo.</div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Resultado final (usuarios, novedades, mantenimientos) -->
+            <section th:if="${resultadoDatos != null}">
+                <div class="alert alert-success d-flex align-items-center gap-2 rounded-4" role="status">
+                    <span class="material-symbols-rounded fs-3" aria-hidden="true">task_alt</span>
+                    <strong>La importación de <span th:text="${#strings.toLowerCase(resultadoDatos.nombreTipo)}">usuarios</span> terminó correctamente.</strong>
+                </div>
+                <div class="row row-cols-2 g-3 mb-3">
+                    <div class="col"><div class="card h-100 border-0 shadow-sm rounded-4"><div class="card-body">
+                        <div class="display-6 fw-bold text-success" th:text="${resultadoDatos.creadas}">0</div><div class="fw-semibold">Registros creados</div></div></div></div>
+                    <div class="col"><div class="card h-100 border-0 shadow-sm rounded-4"><div class="card-body">
+                        <div class="display-6 fw-bold" th:text="${resultadoDatos.omitidas}">0</div><div class="fw-semibold">Omitidos</div>
+                        <div class="small text-secondary">ya existían o no aplicaban</div></div></div></div>
+                </div>
+                <div class="card border-warning shadow-sm rounded-4 mb-3" th:if="${!#lists.isEmpty(resultadoDatos.credenciales)}">
+                    <div class="card-body">
+                        <h2 class="h6 fw-bold mb-1"><span th:text="${#lists.size(resultadoDatos.credenciales)}">0</span> contraseñas generadas</h2>
+                        <p class="small text-secondary mb-2">Estas personas quedaron sin contraseña propia, así que el sistema les creó una. Descarga la lista ahora y entrégale a cada quien la suya: por seguridad no se vuelve a mostrar cuando salgas de esta pantalla.</p>
+                        <a th:href="@{/importacion/credenciales}" class="btn btn-warning rounded-pill fw-bold d-inline-flex align-items-center gap-1">
+                            <span class="material-symbols-rounded" aria-hidden="true">key</span> Descargar contraseñas iniciales
+                        </a>
+                    </div>
+                </div>
+                <div class="card border-0 shadow-sm rounded-4 mb-3" th:if="${!#lists.isEmpty(resultadoDatos.avisos)}">
+                    <div class="card-body">
+                        <h2 class="h6 fw-bold mb-2">Omitidos (para revisar)</h2>
+                        <ul class="small mb-0"><li th:each="a : ${resultadoDatos.avisos}" th:text="${a}">aviso</li></ul>
+                    </div>
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                    <a th:if="${tipo.clave == 'usuarios'}" th:href="@{/usuarios}" class="btn btn-success rounded-pill">Ver los usuarios</a>
+                    <a th:if="${tipo.clave == 'novedades'}" th:href="@{/novedades}" class="btn btn-success rounded-pill">Ver las novedades</a>
+                    <a th:if="${tipo.clave == 'mantenimientos'}" th:href="@{/mantenimiento/historial}" class="btn btn-success rounded-pill">Ver los mantenimientos</a>
+                    <a th:if="${tipo.orden() < 4}" th:href="@{/importacion(tipo=${tipos[tipo.orden()].clave})}" class="btn btn-outline-success rounded-pill">
+                        Siguiente: <span th:text="${tipos[tipo.orden()].nombre}">Máquinas</span>
+                    </a>
+                    <a th:href="@{/importacion(tipo=${tipo.clave})}" class="btn btn-outline-secondary rounded-pill">Importar otro archivo</a>
+                </div>
+            </section>
+
+            <!-- Revision (usuarios, novedades, mantenimientos) -->
+            <section th:if="${analisisDatos != null}">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="rounded-circle bg-success text-white d-inline-flex align-items-center justify-content-center fw-bold" style="width:2rem;height:2rem">3</span>
+                    <h2 class="h5 fw-bold mb-0">Revisa antes de importar: <span th:text="${#strings.toLowerCase(analisisDatos.nombreTipo)}">usuarios</span></h2>
+                    <span class="small text-secondary ms-2" th:text="${analisisDatos.archivo}">archivo.xlsx</span>
+                </div>
+                <div class="row row-cols-2 row-cols-lg-4 g-3 mb-3">
+                    <div class="col"><div class="card h-100 border-0 shadow-sm rounded-4"><div class="card-body">
+                        <div class="display-6 fw-bold" th:text="${analisisDatos.totalFilas}">0</div><div class="fw-semibold">Filas leídas</div></div></div></div>
+                    <div class="col"><div class="card h-100 border-0 shadow-sm rounded-4"><div class="card-body">
+                        <div class="display-6 fw-bold text-success" th:text="${analisisDatos.nuevas}">0</div><div class="fw-semibold">Se crearán</div></div></div></div>
+                    <div class="col"><div class="card h-100 border-0 shadow-sm rounded-4"><div class="card-body">
+                        <div class="display-6 fw-bold text-secondary" th:text="${analisisDatos.omitidas}">0</div><div class="fw-semibold">Se omitirán</div>
+                        <div class="small text-secondary">ya existen o no aplican</div></div></div></div>
+                    <div class="col"><div class="card h-100 border-0 shadow-sm rounded-4" th:classappend="${analisisDatos.conError > 0} ? 'border border-danger'"><div class="card-body">
+                        <div class="display-6 fw-bold" th:classappend="${analisisDatos.conError > 0} ? 'text-danger'" th:text="${analisisDatos.conError}">0</div><div class="fw-semibold">Con errores</div>
+                        <div class="small text-secondary">no se importan</div></div></div></div>
+                </div>
+
+                <div class="accordion mb-3" id="revisionDatos">
+                    <div class="accordion-item border-0 shadow-sm rounded-4 overflow-hidden mb-2">
+                        <h3 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#d-columnas">
+                                Columnas que reconocí (<span th:text="${#lists.size(analisisDatos.columnasDetectadas)}">0</span>)
+                                <span class="badge rounded-pill text-bg-light border ms-2" th:if="${!#lists.isEmpty(analisisDatos.columnasIgnoradas)}" th:text="${#lists.size(analisisDatos.columnasIgnoradas)} + ' ignoradas'">ignoradas</span>
+                            </button>
+                        </h3>
+                        <div id="d-columnas" class="accordion-collapse collapse" data-bs-parent="#revisionDatos"><div class="accordion-body small">
+                            <ul class="mb-2"><li th:each="c : ${analisisDatos.columnasDetectadas}" th:text="${c}">columna</li></ul>
+                            <div th:if="${!#lists.isEmpty(analisisDatos.columnasIgnoradas)}" class="text-secondary">
+                                <strong>Ignoradas (el sistema no las guarda):</strong> <span th:text="${#strings.listJoin(analisisDatos.columnasIgnoradas, ', ')}">otras</span>
+                            </div>
+                        </div></div>
+                    </div>
+                    <div class="accordion-item border-0 shadow-sm rounded-4 overflow-hidden mb-2" th:if="${!#lists.isEmpty(filasDatosConError)}">
+                        <h3 class="accordion-header">
+                            <button class="accordion-button text-danger fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#d-errores">
+                                Filas con errores (<span th:text="${analisisDatos.conError}">0</span>): no se importarán
+                            </button>
+                        </h3>
+                        <div id="d-errores" class="accordion-collapse collapse show" data-bs-parent="#revisionDatos"><div class="accordion-body p-0">
+                            <div class="table-responsive" style="max-height: 20rem">
+                                <table class="table table-sm align-middle mb-0 small">
+                                    <thead class="table-light"><tr><th>Fila</th><th>Registro</th><th>Qué pasa</th></tr></thead>
+                                    <tbody>
+                                        <tr th:each="f : ${filasDatosConError}">
+                                            <td th:text="${f.fila}">2</td><td class="text-nowrap" th:text="${f.etiqueta}">registro</td>
+                                            <td><div th:each="e : ${f.errores}" th:text="${e}">error</div></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <p class="small text-secondary px-3 py-2 mb-0" th:if="${analisisDatos.conError > 200}">Se muestran las primeras 200.</p>
+                        </div></div>
+                    </div>
+                    <div class="accordion-item border-0 shadow-sm rounded-4 overflow-hidden mb-2" th:if="${!#lists.isEmpty(filasDatosConAviso)}">
+                        <h3 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#d-avisos">
+                                Avisos (<span th:text="${analisisDatos.conAvisos}">0</span>): se importan, pero conviene mirarlos
+                            </button>
+                        </h3>
+                        <div id="d-avisos" class="accordion-collapse collapse" data-bs-parent="#revisionDatos"><div class="accordion-body p-0">
+                            <div class="table-responsive" style="max-height: 20rem">
+                                <table class="table table-sm align-middle mb-0 small">
+                                    <thead class="table-light"><tr><th>Fila</th><th>Registro</th><th>Aviso</th></tr></thead>
+                                    <tbody>
+                                        <tr th:each="f : ${filasDatosConAviso}">
+                                            <td th:text="${f.fila}">2</td><td class="text-nowrap" th:text="${f.etiqueta}">registro</td>
+                                            <td><div th:each="e : ${f.avisos}" th:text="${e}">aviso</div></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div></div>
+                    </div>
+                    <div class="accordion-item border-0 shadow-sm rounded-4 overflow-hidden">
+                        <h3 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#d-muestra">Así se verán las primeras filas</button>
+                        </h3>
+                        <div id="d-muestra" class="accordion-collapse collapse" data-bs-parent="#revisionDatos"><div class="accordion-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-sm align-middle mb-0 small">
+                                    <thead class="table-light"><tr><th>Fila</th><th th:each="t : ${analisisDatos.titulosMuestra}" th:text="${t}">Columna</th><th>Qué pasará</th></tr></thead>
+                                    <tbody>
+                                        <tr th:each="f : ${muestraDatos}">
+                                            <td th:text="${f.fila}">2</td>
+                                            <td th:each="c : ${analisisDatos.camposMuestra}" th:text="${f.v.get(c)}">dato</td>
+                                            <td>
+                                                <span class="badge rounded-pill" th:classappend="${f.accion == 'NUEVA'} ? 'text-bg-success' : (${f.accion == 'ERROR'} ? 'text-bg-danger' : 'text-bg-secondary')"
+                                                      th:text="${f.accion == 'NUEVA'} ? 'Se crea' : (${f.accion == 'ERROR'} ? 'Error' : 'Se omite')">Se crea</span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div></div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-body">
+                        <form th:action="@{/importacion/confirmar}" method="post" class="d-flex flex-column gap-3"
+                              onsubmit="return confirm('¿Importar ahora? Se guardarán los cambios en el sistema.');">
+                            <input type="hidden" name="token" th:value="${analisisDatos.token}"/>
+                            <div class="d-flex flex-wrap gap-2">
+                                <button type="submit" class="btn btn-success rounded-pill fw-bold d-inline-flex align-items-center gap-1" th:disabled="${analisisDatos.nuevas == 0}">
+                                    <span class="material-symbols-rounded" aria-hidden="true">cloud_upload</span>
+                                    Importar <span th:text="${analisisDatos.nuevas}">0</span> registros
+                                </button>
+                                <a th:href="@{/importacion(tipo=${tipo.clave})}" class="btn btn-outline-secondary rounded-pill">Cancelar y subir otro archivo</a>
+                            </div>
+                            <div class="small text-secondary" th:if="${analisisDatos.conError > 0}">Las filas con errores se saltan; el resto sí se importa. También puedes cancelar, corregir el Excel y subirlo de nuevo.</div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+        </main>
+        <footer class="border-top bg-white small text-secondary text-center py-3 d-print-none">&copy; 2026 FIMACOR &middot; Sistema de Control de Máquinas Textiles &middot; CMTC &ndash; SENA</footer>
+    </div>
+</div>
+<th:block th:replace="~{fragments/nav :: scripts}"></th:block>
+</body>
+</html>

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes"/>
+    <title>FIMACOR | Roles</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous"/>
+    <link rel="stylesheet" th:href="@{/Estyle.css/fimacor-theme.css}"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+" crossorigin="anonymous"/>
+</head>
+<body class="tablausuario-form rolespermisos-form bg-body-tertiary">
+
+    <div class="row g-0 min-vh-100">
+    <th:block th:replace="~{fragments/nav :: sidebar}"></th:block>
+    <div class="col-12 col-lg-9 col-xxl-10 d-flex flex-column">
+        <th:block th:replace="~{fragments/nav :: topbar('Roles')}"></th:block>
+        <main class="flex-grow-1 px-3 px-md-4 px-xxl-5 py-4">
+
+    <div class="tablausuario-container">
+        <div class="tablausuario-card rolespermisos-card d-flex flex-column gap-4">
+
+            <div class="headertablausuario d-flex flex-wrap justify-content-between align-items-end gap-3">
+                <div>
+                    <p class="small text-uppercase fw-semibold text-success mb-1">Seguridad y acceso</p>
+                    <h2 class="h3 fw-bold mb-1">Gestión de roles</h2>
+                    <p class="rolespermisos-subtitulo small text-secondary mb-0">Crea roles, define sus permisos por módulo y revisa quién los tiene asignados.</p>
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                    <a th:href="@{/permisos}" class="btn btn-light border fw-semibold"><i class="bi bi-key me-1" aria-hidden="true"></i>Administrar permisos</a>
+                    <button type="button" class="btn btn-success fw-semibold" data-bs-toggle="collapse" data-bs-target="#nuevoRol" aria-expanded="false" aria-controls="nuevoRol">
+                        <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Nuevo rol
+                    </button>
+                </div>
+            </div>
+
+            <div class="alertamanuales-exito rolespermisos-alerta alert alert-success d-flex align-items-center gap-2 py-2 mb-0" th:if="${param.ok}">
+                <i class="bi bi-check-circle-fill" aria-hidden="true"></i><span>Operación realizada correctamente.</span>
+            </div>
+            <div class="alertamanuales-error rolespermisos-alerta alert alert-danger d-flex align-items-center gap-2 py-2 mb-0" th:if="${param.error}">
+                <i class="bi bi-exclamation-octagon-fill" aria-hidden="true"></i>
+                <span th:text="${param.error[0] == 'eliminar'} ? 'No se pudo eliminar el rol: tiene usuarios asignados (activos o inactivos) o es un rol base del sistema.'
+                         : (${param.error[0] == 'actualizar'} ? 'No se pudo guardar el rol. Los roles base del sistema no se pueden renombrar; sus permisos sí se pueden cambiar.'
+                         : 'No se pudo completar la operación. Revise datos, permisos asignados o usuarios vinculados.')">No se pudo completar la operación.</span>
+            </div>
+
+            <div class="collapse" id="nuevoRol">
+                <form class="rolespermisos-panel bg-white border rounded-4 shadow-sm" th:action="@{/roles}" method="post" data-matriz-permisos>
+                    <div class="d-flex flex-wrap align-items-center gap-3 p-3 p-md-4 border-bottom">
+                        <span class="d-inline-flex rounded-3 bg-success-subtle text-success-emphasis fs-5 px-2 py-1"><i class="bi bi-person-plus" aria-hidden="true"></i></span>
+                        <div class="me-auto">
+                            <h3 class="h6 fw-bold mb-0">Nuevo rol</h3>
+                            <p class="small text-secondary mb-0"><span class="fw-semibold text-body" data-contador-activos>0</span> permisos seleccionados</p>
+                        </div>
+                        <th:block th:replace="~{fragments/permisos-matriz :: herramientas}"></th:block>
+                    </div>
+                    <div class="p-3 p-md-4">
+                        <label class="form-label fw-semibold small mb-1" for="nuevoRolNombre">Nombre del rol</label>
+                        <input class="form-control mb-4" type="text" id="nuevoRolNombre" name="descripcion" maxlength="45" placeholder="Ej. Coordinador, Operario, Supervisor" required/>
+                        <p class="small text-uppercase fw-semibold text-secondary mb-2">Permisos del rol</p>
+                        <p class="rolespermisos-vacio text-secondary text-center border rounded-3 py-4 mb-0" th:if="${#lists.isEmpty(permisos)}">Aún no hay permisos creados. Puedes crear el rol ahora y asignarle permisos después desde Permisos.</p>
+                        <th:block th:unless="${#lists.isEmpty(permisos)}"><th:block th:replace="~{fragments/permisos-matriz :: modulos('nuevo', null, 'row-cols-1 row-cols-md-2 row-cols-xxl-3')}"></th:block></th:block>
+                    </div>
+                    <div class="d-flex flex-wrap justify-content-end gap-2 px-3 px-md-4 py-3 border-top bg-body-tertiary rounded-bottom-4">
+                        <button type="button" class="btn btn-light border" data-bs-toggle="collapse" data-bs-target="#nuevoRol">Cancelar</button>
+                        <button type="submit" class="btn-agregar rolespermisos-submit btn btn-success fw-semibold"><i class="bi bi-check2 me-1" aria-hidden="true"></i>Crear rol</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="row row-cols-1 row-cols-sm-3 g-3">
+                <div class="col">
+                    <div class="bg-white border rounded-4 shadow-sm p-3 d-flex align-items-center gap-3 h-100">
+                        <span class="d-inline-flex rounded-3 bg-success-subtle text-success-emphasis fs-5 px-2 py-1"><i class="bi bi-person-badge" aria-hidden="true"></i></span>
+                        <div><div class="small text-secondary">Roles</div><div class="fs-4 fw-bold lh-1" th:text="${#lists.size(roles)}">0</div></div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="bg-white border rounded-4 shadow-sm p-3 d-flex align-items-center gap-3 h-100">
+                        <span class="d-inline-flex rounded-3 bg-primary-subtle text-primary-emphasis fs-5 px-2 py-1"><i class="bi bi-people" aria-hidden="true"></i></span>
+                        <div><div class="small text-secondary">Usuarios activos con rol</div><div class="fs-4 fw-bold lh-1" th:text="${totalUsuariosConRol}">0</div></div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="bg-white border rounded-4 shadow-sm p-3 d-flex align-items-center gap-3 h-100">
+                        <span class="d-inline-flex rounded-3 bg-warning-subtle text-warning-emphasis fs-5 px-2 py-1"><i class="bi bi-key" aria-hidden="true"></i></span>
+                        <div><div class="small text-secondary">Permisos disponibles</div><div class="fs-4 fw-bold lh-1" th:text="${#lists.size(permisos)}">0</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="actions-tablausuario d-flex flex-column flex-md-row align-items-md-center gap-2">
+                <div class="search-tablausuario input-group flex-grow-1">
+                    <span class="input-group-text bg-white"><i class="bi bi-search" aria-hidden="true"></i></span>
+                    <input class="form-control" type="text" placeholder="Buscar rol o usuario..." id="buscarUsuario"/>
+                </div>
+            </div>
+
+            <div class="row row-cols-1 row-cols-md-2 row-cols-xxl-3 g-3" id="tablaUsuarios">
+                <div class="col fila-usuario" th:each="rol : ${roles}" th:attr="data-modal='modalRol' + ${rol.idRol}" role="button">
+                    <article class="h-100 d-flex flex-column gap-3 bg-white border rounded-4 shadow-sm p-3 p-xl-4">
+                        <div class="d-flex align-items-start gap-3">
+                            <span class="d-inline-flex rounded-3 bg-success-subtle text-success-emphasis fs-5 px-2 py-1"><i class="bi bi-person-badge" aria-hidden="true"></i></span>
+                            <div class="flex-grow-1 overflow-hidden">
+                                <h3 class="h6 fw-bold text-truncate mb-1" th:text="${rol.descripcionRol}">Rol</h3>
+                                <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle" th:if="${rolesDelSistema.contains(rol.idRol)}"><i class="bi bi-lock me-1" aria-hidden="true"></i>Rol del sistema</span>
+                                <span class="badge rounded-pill bg-success-subtle text-success-emphasis border border-success-subtle" th:unless="${rolesDelSistema.contains(rol.idRol)}">Rol personalizado</span>
+                            </div>
+                            <div class="btn-group-tablausuario"><button type="button" class="btn btn-editar btn-light border btn-sm"><i class="bi bi-pencil me-1" aria-hidden="true"></i>Editar</button></div>
+                        </div>
+
+                        <div class="row g-2 small">
+                            <div class="col-6">
+                                <div class="border rounded-3 px-3 py-2 h-100">
+                                    <span class="d-block text-secondary">Permisos</span>
+                                    <strong class="fs-5"><span th:text="${#sets.size(permisosPorRol.get(rol.idRol))}">0</span><span class="small text-secondary fw-normal" th:text="' / ' + ${#lists.size(permisos)}"> / 0</span></strong>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="border rounded-3 px-3 py-2 h-100">
+                                    <span class="d-block text-secondary">Usuarios activos</span>
+                                    <strong class="estado-tablausuario fs-5" th:text="${#lists.size(usuariosPorRol.get(rol.idRol))}">0</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex flex-wrap gap-1">
+                            <span class="badge rounded-pill bg-body-tertiary text-body-emphasis border fw-medium" th:each="r : ${resumenPorRol.get(rol.idRol)}">
+                                <i class="bi text-success me-1" th:classappend="${r.icono()}" aria-hidden="true"></i><span th:text="${r.nombre()} + ' ' + ${r.asignados()} + '/' + ${r.total()}">Módulo 1/1</span>
+                            </span>
+                            <span class="small text-secondary" th:if="${#lists.isEmpty(resumenPorRol.get(rol.idRol))}">Sin permisos asignados.</span>
+                        </div>
+
+                        <div class="d-flex align-items-center gap-2 mt-auto pt-2 border-top">
+                            <div class="d-flex gap-1">
+                                <span th:each="usuario, it : ${usuariosPorRol.get(rol.idRol)}" th:if="${it.index < 4}"
+                                      class="d-inline-flex align-items-center justify-content-center rounded-circle bg-success-subtle text-success-emphasis border border-2 border-white fw-semibold small px-2 py-1"
+                                      th:title="${usuario.nombre} + ' ' + ${usuario.apellido}"
+                                      th:text="${(#strings.isEmpty(usuario.nombre) ? '?' : #strings.toUpperCase(#strings.substring(usuario.nombre, 0, 1))) + (#strings.isEmpty(usuario.apellido) ? '' : #strings.toUpperCase(#strings.substring(usuario.apellido, 0, 1)))}">AB</span>
+                            </div>
+                            <span class="small text-secondary" th:if="${#lists.size(usuariosPorRol.get(rol.idRol)) > 4}" th:text="'+' + ${#lists.size(usuariosPorRol.get(rol.idRol)) - 4}">+0</span>
+                            <span class="small text-secondary" th:if="${#lists.isEmpty(usuariosPorRol.get(rol.idRol))}">Nadie tiene este rol todavía.</span>
+                            <span class="small fw-semibold text-success-emphasis ms-auto">Ver detalle <i class="bi bi-arrow-right" aria-hidden="true"></i></span>
+                        </div>
+                    </article>
+                </div>
+            </div>
+
+            <div th:each="rol : ${roles}" class="modalmaquina modal d-block d-none bg-dark bg-opacity-75" th:id="'modalRol' + ${rol.idRol}">
+                <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+                    <form th:action="@{/roles/{id}(id=${rol.idRol})}" method="post"
+                          class="modalmaquina-contenido rolespermisos-modal-form modal-content border-0 rounded-4 shadow-lg" data-matriz-permisos>
+                        <div class="modalmaquina-header modal-header align-items-start gap-3 px-4 py-3">
+                            <span class="d-inline-flex rounded-3 bg-success-subtle text-success-emphasis fs-4 px-2 py-1"><i class="bi bi-person-badge" aria-hidden="true"></i></span>
+                            <div class="me-auto">
+                                <h3 class="h5 fw-bold mb-1" th:text="${rol.descripcionRol}">Rol</h3>
+                                <div class="d-flex flex-wrap align-items-center gap-2 small">
+                                    <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle" th:if="${rolesDelSistema.contains(rol.idRol)}"><i class="bi bi-lock me-1" aria-hidden="true"></i>Rol del sistema</span>
+                                    <span class="text-secondary"><span class="fw-semibold text-body" data-contador-activos th:text="${#sets.size(permisosPorRol.get(rol.idRol))}">0</span> de <span th:text="${#lists.size(permisos)}">0</span> permisos</span>
+                                    <span class="text-secondary">&middot; <span th:text="${#lists.size(usuariosPorRol.get(rol.idRol))}">0</span> usuario(s) activo(s)</span>
+                                    <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis border border-warning-subtle d-none" data-sin-guardar>Cambios sin guardar</span>
+                                </div>
+                            </div>
+                            <button type="button" class="modalmaquina-cerrar btn-close" aria-label="Cerrar"></button>
+                        </div>
+
+                        <div class="modal-body bg-body-tertiary p-3 p-md-4">
+                            <div class="row g-3 g-lg-4">
+                                <div class="col-lg-4 d-flex flex-column gap-3">
+                                    <section class="modalmaquina-bloque bg-white border rounded-4 p-3">
+                                        <h4 class="small text-uppercase fw-semibold text-secondary mb-2">Datos del rol</h4>
+                                        <label class="form-label fw-semibold small mb-1" th:for="'rolNombre' + ${rol.idRol}">Nombre del rol</label>
+                                        <input class="form-control" type="text" name="descripcion" maxlength="45" th:id="'rolNombre' + ${rol.idRol}" th:value="${rol.descripcionRol}" required
+                                               th:readonly="${rolesDelSistema.contains(rol.idRol)}"/>
+                                        <p class="form-text small mb-0" th:if="${rolesDelSistema.contains(rol.idRol)}">Rol base del sistema: no se puede renombrar ni eliminar, pero sí cambiar sus permisos.</p>
+                                    </section>
+
+                                    <section class="modalmaquina-bloque bg-white border rounded-4 overflow-hidden">
+                                        <h4 class="small text-uppercase fw-semibold text-secondary px-3 pt-3 pb-2 mb-0">Usuarios activos con este rol</h4>
+                                        <p class="small text-secondary px-3 pb-3 mb-0" th:if="${#lists.isEmpty(usuariosPorRol.get(rol.idRol))}">No hay usuarios activos con este rol.</p>
+                                        <ul class="rolespermisos-usuarios list-group list-group-flush" th:unless="${#lists.isEmpty(usuariosPorRol.get(rol.idRol))}">
+                                            <li class="list-group-item d-flex align-items-center gap-2 px-3" th:each="usuario : ${usuariosPorRol.get(rol.idRol)}">
+                                                <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-success-subtle text-success-emphasis fw-semibold small flex-shrink-0 px-2 py-1"
+                                                      th:text="${(#strings.isEmpty(usuario.nombre) ? '?' : #strings.toUpperCase(#strings.substring(usuario.nombre, 0, 1))) + (#strings.isEmpty(usuario.apellido) ? '' : #strings.toUpperCase(#strings.substring(usuario.apellido, 0, 1)))}">AB</span>
+                                                <div class="lh-sm overflow-hidden">
+                                                    <strong class="d-block small text-truncate" th:text="${usuario.nombre} + ' ' + ${usuario.apellido}">Nombre</strong>
+                                                    <span class="d-block small text-secondary text-truncate" th:text="${usuario.correo}">correo</span>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </section>
+                                </div>
+
+                                <div class="col-lg-8">
+                                    <section class="modalmaquina-bloque bg-white border rounded-4">
+                                        <div class="d-flex flex-wrap align-items-center gap-2 p-3 border-bottom">
+                                            <h4 class="small text-uppercase fw-semibold text-secondary mb-0 me-auto">Permisos asignados</h4>
+                                            <th:block th:replace="~{fragments/permisos-matriz :: herramientas}"></th:block>
+                                        </div>
+                                        <div class="p-3">
+                                            <p class="rolespermisos-vacio text-secondary text-center py-3 mb-0" th:if="${#lists.isEmpty(permisos)}">Aún no hay permisos creados para asignar.</p>
+                                            <th:block th:unless="${#lists.isEmpty(permisos)}"><th:block th:replace="~{fragments/permisos-matriz :: modulos('r' + ${rol.idRol}, ${permisosPorRol.get(rol.idRol)}, 'row-cols-1 row-cols-md-2')}"></th:block></th:block>
+                                        </div>
+                                    </section>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer flex-wrap gap-2 px-4 py-3">
+                            <button type="submit" class="btn btn-eliminar btn-outline-danger me-auto" th:attr="form='eliminarRol' + ${rol.idRol}"
+                                    th:disabled="${not #lists.isEmpty(usuariosPorRol.get(rol.idRol)) or rolesDelSistema.contains(rol.idRol)}"
+                                    onclick="return confirm('¿Eliminar este rol? Esta acción no se puede deshacer.');">
+                                <i class="bi bi-trash me-1" aria-hidden="true"></i>Eliminar rol
+                            </button>
+                            <button type="button" class="modalmaquina-cerrar btn btn-light border">Cancelar</button>
+                            <button type="submit" class="btn-agregar rolespermisos-submit btn btn-success fw-semibold"><i class="bi bi-check2 me-1" aria-hidden="true"></i>Guardar cambios</button>
+                        </div>
+                    </form>
+                </div>
+                <form th:action="@{/roles/{id}/eliminar(id=${rol.idRol})}" method="post" class="rolespermisos-eliminar d-none" th:id="'eliminarRol' + ${rol.idRol}"></form>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/Script.js/Maquinas_registradas.js}" defer></script>
+    <script th:src="@{/Script.js/Permisos.js}" defer></script>
+        </main>
+        <footer class="border-top bg-white small text-secondary text-center py-3 d-print-none">&copy; 2026 FIMACOR &middot; Sistema de Control de Máquinas Textiles &middot; CMTC &ndash; SENA</footer>
+    </div>
+</div>
+<th:block th:replace="~{fragments/nav :: scripts}"></th:block>
+</body>
+</html>

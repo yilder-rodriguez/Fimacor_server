@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes"/>
+    <title>FIMACOR | Registrar Máquina</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous"/>
+    <link rel="stylesheet" th:href="@{/Estyle.css/fimacor-theme.css}"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+" crossorigin="anonymous"/>
+</head>
+<body class="manuales-form bg-body-tertiary">
+
+    <div class="row g-0 min-vh-100">
+    <th:block th:replace="~{fragments/nav :: sidebar}"></th:block>
+    <div class="col-12 col-lg-9 col-xxl-10 d-flex flex-column">
+        <th:block th:replace="~{fragments/nav :: topbar('Registrar Máquina')}"></th:block>
+        <main class="flex-grow-1 px-3 px-md-4 px-xxl-5 py-4">
+
+    <div class="manuales-wrapper">
+        <div class="manuales-container bg-white border rounded-4 shadow-sm p-3 p-md-5 mx-auto col-xl-10">
+            <div class="manuales-header border-bottom pb-3 mb-4">
+                <h2 class="h2manuales h3 fw-bold mb-1">Registrar Máquina</h2>
+                <p class="manuales-subtitle small text-secondary mb-0">Ficha técnica de una nueva máquina textil</p>
+            </div>
+
+            <div class="alertamanuales-error alert alert-danger py-2" th:if="${param.error == 'datos'}">Revise los datos: todos los campos obligatorios deben estar completos y el modelo debe pertenecer a la marca seleccionada.</div>
+            <div class="alertamanuales-error alert alert-danger py-2" th:if="${param.error == 'codigo'}">Ya existe una máquina registrada con ese código SENA.</div>
+            <div class="alertamanuales-error alert alert-danger py-2" th:if="${param.error == 'guardar'}">No se pudo guardar la máquina. Intente nuevamente.</div>
+
+            <form th:action="@{/maquinas}" method="post" class="formmanuales row row-cols-1 row-cols-md-2 g-3">
+                <div class="inputmanuales-group d-flex flex-column">
+                    <label class="form-label fw-semibold small text-success mb-1" for="codigoSena">Código SENA</label>
+                    <input class="form-control" id="codigoSena" name="codigoSena" type="text" maxlength="45" required/>
+                </div>
+                <div class="inputmanuales-group d-flex flex-column">
+                    <label class="form-label fw-semibold small text-success mb-1" for="descripcion">Descripción</label>
+                    <input class="form-control" id="descripcion" name="descripcion" type="text" maxlength="255" required/>
+                </div>
+                <div class="inputmanuales-group d-flex flex-column">
+                    <label class="form-label fw-semibold small text-success mb-1" for="tipo">Tipo de máquina</label>
+                    <select class="form-select" id="tipo" name="tipo" required>
+                        <option value="">Seleccione</option>
+                        <option th:each="t : ${tipos}" th:value="${t.idTipoMaquina}" th:text="${t.descripcionMaquina}"></option>
+                    </select>
+                </div>
+                <div class="inputmanuales-group d-flex flex-column">
+                    <label class="form-label fw-semibold small text-success mb-1" for="marca">Marca</label>
+                    <select class="form-select" id="marca" name="marca" required onchange="filtrarModelos()">
+                        <option value="">Seleccione</option>
+                        <option th:each="m : ${marcas}" th:value="${m.idMarca}" th:text="${m.descripcionMarca}"></option>
+                    </select>
+                </div>
+                <div class="inputmanuales-group d-flex flex-column">
+                    <label class="form-label fw-semibold small text-success mb-1" for="modelo">Modelo</label>
+                    <select class="form-select" id="modelo" name="modelo" required>
+                        <option value="" th:each="mo : ${modelos}" th:attr="data-marca=${mo.marca.idMarca}"
+                                th:value="${mo.idModelo}" th:text="${mo.descripcionModelo}"></option>
+                    </select>
+                </div>
+                <div class="inputmanuales-group d-flex flex-column">
+                    <label class="form-label fw-semibold small text-success mb-1" for="estado">Estado</label>
+                    <select class="form-select" id="estado" name="estado" required>
+                        <option value="">Seleccione</option>
+                        <option th:each="e : ${estados}" th:value="${e.idEstadoDeMaquina}" th:text="${e.nombreTipo} + ' - ' + ${e.descripcionEstado}"></option>
+                    </select>
+                </div>
+                <div class="inputmanuales-group d-flex flex-column">
+                    <label class="form-label fw-semibold small text-success mb-1" for="sede">Sede</label>
+                    <select class="form-select" id="sede" name="sede" required>
+                        <option value="">Seleccione</option>
+                        <option th:each="s : ${sedes}" th:value="${s.idSede}" th:text="${s.nombreSede}"></option>
+                    </select>
+                </div>
+                <div class="inputmanuales-group d-flex flex-column">
+                    <label class="form-label fw-semibold small text-success mb-1" for="ambiente">Ambiente de aprendizaje</label>
+                    <select class="form-select" id="ambiente" name="ambiente" required>
+                        <option value="">Seleccione</option>
+                        <option th:each="a : ${ambientes}" th:value="${a.idAmbientesDeAprendizaje}"
+                                th:attr="data-sede=${a.sede != null ? a.sede.idSede : 0}"
+                                th:text="${a.descripcionAmbiente}"></option>
+                    </select>
+                </div>
+                <div class="inputmanuales-group d-flex flex-column">
+                    <label class="form-label fw-semibold small text-success mb-1" for="area">Área</label>
+                    <select class="form-select" id="area" name="area" required data-novedad-area>
+                        <option value="">Seleccione un área</option>
+                        <option th:each="a : ${areas}" th:value="${a.nombreArea}"
+                                th:attr="data-sede=${a.sede != null ? a.sede.idSede : 0}"
+                                th:text="${a.nombreArea}"></option>
+                    </select>
+                </div>
+                <div class="inputmanuales-group d-flex flex-column">
+                    <label class="form-label fw-semibold small text-success mb-1" for="fechaCompra">Fecha de compra</label>
+                    <input class="form-control" id="fechaCompra" name="fechaCompra" type="date" th:min="1990-01-01" th:max="${fechaHoy}"/>
+                </div>
+                <div class="inputmanuales-group d-flex flex-column">
+                    <label class="form-label fw-semibold small text-success mb-1" for="valorMaquina">Valor de la máquina</label>
+                    <input class="form-control" id="valorMaquina" name="valorMaquina" type="text" inputmode="numeric" maxlength="20" placeholder="Ej. 1.000.000"/>
+                </div>
+                <div class="inputmanuales-group d-flex flex-column">
+                    <label class="form-label fw-semibold small text-success mb-1" for="tieneGarantia">Garantía</label>
+                    <select class="form-select" id="tieneGarantia" name="tieneGarantia" onchange="document.getElementById('grupoFechaGarantia').classList.toggle('d-none', this.value !== '1');">
+                        <option value="0">No</option>
+                        <option value="1">Sí</option>
+                    </select>
+                </div>
+                <div class="inputmanuales-group d-flex flex-column" th:if="${puedeAsignar}">
+                    <label class="form-label fw-semibold small text-success mb-1" for="cuentadante">Cuentadante responsable <span class="text-secondary fw-normal">(opcional)</span></label>
+                    <select class="form-select" id="cuentadante" name="cuentadante" data-buscable data-buscable-texto="Buscar cuentadante por nombre">
+                        <option value="">Sin asignar por ahora</option>
+                        <option th:each="c : ${cuentadantes}" th:value="${c.idUsuario}" th:text="${c.nombre + ' ' + c.apellido}"></option>
+                    </select>
+                    <div class="form-text">Si eliges uno, la máquina queda asignada a esa persona y le llega la notificación.</div>
+                </div>
+                <div class="inputmanuales-group d-flex flex-column d-none" id="grupoFechaGarantia">
+                    <label class="form-label fw-semibold small text-success mb-1" for="fechaGarantia">Fecha de garantía</label>
+                    <input class="form-control" id="fechaGarantia" name="fechaGarantia" type="date" th:min="${fechaHoy}"/>
+                </div>
+
+                <div class="manuales-buttons col-12 d-flex flex-wrap align-items-start gap-2 mt-3">
+                    <button type="submit" class="btnmanuales btn btn-success fw-bold">Registrar máquina</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function filtrarModelos() {
+            const marca = document.getElementById('marca').value;
+            const modelo = document.getElementById('modelo');
+            Array.from(modelo.options).forEach(function (opcion) {
+                if (!opcion.value) return;
+                opcion.hidden = marca !== '' && opcion.getAttribute('data-marca') !== marca;
+            });
+            modelo.value = '';
+        }
+        filtrarModelos();
+
+        // Ambiente y Area solo ofrecen los de la sede elegida.
+        (function () {
+            const sede = document.getElementById('sede');
+            const ambiente = document.getElementById('ambiente');
+            const area = document.getElementById('area');
+            if (!sede || !ambiente || !area) return;
+            const textoOriginal = new Map();
+            textoOriginal.set(ambiente, ambiente.options[0].text);
+            textoOriginal.set(area, area.options[0].text);
+            function filtrar(select) {
+                const sedeElegida = sede.value;
+                let disponibles = 0;
+                Array.from(select.options).forEach(function (opcion, indice) {
+                    if (indice === 0) return;
+                    const visible = sedeElegida !== '' && opcion.getAttribute('data-sede') === sedeElegida;
+                    opcion.hidden = !visible;
+                    opcion.disabled = !visible;
+                    if (visible) disponibles += 1;
+                });
+                if (select.selectedOptions.length && select.selectedOptions[0].disabled) select.value = '';
+                select.options[0].text = sedeElegida === '' ? 'Primero elige la sede'
+                        : (disponibles === 0 ? 'No hay opciones configuradas para esta sede' : textoOriginal.get(select));
+            }
+            function actualizar() {
+                filtrar(ambiente);
+                filtrar(area);
+            }
+            sede.addEventListener('change', actualizar);
+            actualizar();
+        })();
+    </script>
+        </main>
+        <footer class="border-top bg-white small text-secondary text-center py-3 d-print-none">&copy; 2026 FIMACOR &middot; Sistema de Control de Máquinas Textiles &middot; CMTC &ndash; SENA</footer>
+    </div>
+</div>
+<th:block th:replace="~{fragments/nav :: scripts}"></th:block>
+<script th:src="@{/Script.js/fimacor-buscar-select.js}"></script>
+</body>
+</html>

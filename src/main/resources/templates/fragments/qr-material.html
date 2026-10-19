@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- Recursos de las pantallas publicas del QR (Material 3): fuente, iconos recortados y la hoja propia. -->
+<th:block th:fragment="recursos">
+    <meta name="theme-color" content="#0d1b2a"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,400..700&amp;family=Roboto+Mono:wght@500&amp;display=swap"/>
+    <!-- Solo los iconos que se usan (la lista va en orden alfabetico, como pide Google Fonts). -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,300..600,0..1,0&amp;icon_names=apartment,arrow_back,arrow_forward,badge,bolt,build,calendar_today,category,check,check_circle,edit_note,error,grid_view,location_on,memory,more_horiz,picture_as_pdf,precision_manufacturing,qr_code_scanner,report,sell,send,shield_lock,verified,warning&amp;display=block"/>
+    <link rel="stylesheet" th:href="@{/Estyle.css/fimacor-material.css}"/>
+</th:block>
+
+<!-- Barra superior: marca y contexto de la pantalla. -->
+<header th:fragment="barra(subtitulo)" class="md-top-app-bar">
+    <span class="md-top-app-bar__logo"><img th:src="@{/Img/Sena.png}" alt="SENA"/></span>
+    <span class="md-top-app-bar__title">
+        <strong>FIMACOR</strong>
+        <span th:text="${subtitulo}">Ficha de máquina</span>
+    </span>
+    <span class="md-top-app-bar__end md-chip md-chip--success">
+        <span class="md-icon md-icon--sm" aria-hidden="true">qr_code_scanner</span>QR
+    </span>
+</header>
+
+<footer th:fragment="pie" class="md-footer">&copy; 2026 FIMACOR &middot; Sistema de Control de Máquinas Textiles &middot; CMTC &ndash; SENA</footer>
+
+<script th:fragment="scripts" th:src="@{/Script.js/fimacor-material.js}" defer></script>
+
+</body>
+</html>

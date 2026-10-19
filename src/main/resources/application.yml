@@ -1,0 +1,85 @@
+server:
+  port: ${PORT:8081}
+  # Railway hace de proxy y termina el TLS; sin esto Spring cree que todo llega por http
+  # y arma mal las URLs de redireccion.
+  forward-headers-strategy: framework
+  tomcat:
+    # Cuando un adjunto supera max-file-size/max-request-size, Tomcat necesita "tragarse"
+    # el resto del cuerpo de la peticion para poder devolver una respuesta HTTP limpia.
+    # Por defecto solo traga hasta 2MB; una foto de celular sin comprimir facilmente supera
+    # eso, y la conexion se cortaba a medias -- el navegador mostraba su pantalla generica
+    # de "esta pagina no esta disponible" en vez del mensaje nuestro de "archivo muy grande".
+    max-swallow-size: -1
+  # Comprime paginas, estilos y scripts: por el tunel/Internet viajan mucho menos bytes.
+  compression:
+    enabled: true
+    min-response-size: 1024
+    mime-types: text/html,text/css,application/javascript,text/javascript,application/json,image/svg+xml
+
+spring:
+  application:
+    name: fimacor-spring
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+      naming:
+        # El esquema legacy usa columnas mixed-case (idUsuario, Rol_idRol...).
+        # La estrategia por defecto de Spring Boot convierte a snake_case incluso
+        # los nombres explicitos de @Column; esta usa los nombres tal cual se dan.
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    properties:
+      hibernate:
+        format_sql: false
+    show-sql: false
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 1
+    locations: classpath:db/migration
+  mail:
+    host: smtp.gmail.com
+    port: 465
+    username: ${FIMACOR_SMTP_USER:}
+    password: ${FIMACOR_SMTP_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            enable: true
+            trust: smtp.gmail.com
+          connectiontimeout: 20000
+          timeout: 20000
+          writetimeout: 20000
+  web:
+    resources:
+      cache:
+        # Sin esto el navegador volvia a bajar estilos, scripts e imagenes en cada pantalla.
+        # Con 1 hora los reutiliza; tras una actualizacion se renuevan solos en maximo 1 hora.
+        cachecontrol:
+          max-age: 1h
+          cache-public: true
+  thymeleaf:
+    # Las plantillas se leen y compilan una vez (antes se recompilaban en cada visita).
+    # Para editar plantillas en caliente en desarrollo: FIMACOR_PLANTILLAS_CACHE=false
+    cache: ${FIMACOR_PLANTILLAS_CACHE:true}
+    servlet:
+      # Genera la pagina completa antes de enviarla. Con plantillas largas (clases de Bootstrap)
+      # la respuesta se confirmaba antes de llegar al <form> y el token CSRF ya no podia crear
+      # la sesion ("Cannot create a session after the response has been committed").
+      produce-partial-output-while-processing: false
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 25MB
+
+fimacor:
+  storage:
+    local-dir: ${FIMACOR_STORAGE_DIR:./fimacor-data/uploads}
+
+logging:
+  level:
+    com.fimacor: INFO
+    org.springframework.security: WARN
+    org.springframework.web: WARN

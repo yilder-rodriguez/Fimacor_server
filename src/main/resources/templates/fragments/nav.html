@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- Enlace de la barra lateral: resalta la ruta actual. -->
+<a th:fragment="enlace(ruta, icono, texto)" th:href="@{${ruta}}"
+   class="nav-link d-flex align-items-center gap-3 rounded-3 px-3 py-2 small fw-medium text-white text-opacity-75"
+   th:classappend="${navBar.activo(ruta)} ? 'active bg-success text-opacity-100 fw-semibold shadow-sm' : ''"
+   th:attr="aria-current=${navBar.activo(ruta)} ? 'page' : null">
+    <i class="bi fs-6" th:classappend="${icono}" aria-hidden="true"></i>
+    <span th:text="${texto}">Texto</span>
+</a>
+
+<!-- Barra lateral unica: fija en escritorio (lg+) y panel deslizable en movil. -->
+<aside th:fragment="sidebar" class="offcanvas-lg offcanvas-start col-lg-3 col-xxl-2 d-print-none" tabindex="-1"
+       id="sidebarFimacor" aria-labelledby="sidebarFimacorTitulo" data-bs-theme="dark">
+    <div class="offcanvas-body p-0 h-100">
+        <div class="bg-dark text-white w-100 vh-100 sticky-top d-flex flex-column overflow-auto">
+            <div class="d-flex align-items-center justify-content-between gap-2 px-4 py-4 border-bottom border-light border-opacity-10">
+                <a th:href="@{/menu}" class="d-flex align-items-center gap-3 text-decoration-none">
+                    <span class="d-inline-flex align-items-center justify-content-center rounded-3 bg-white p-1 shadow-sm">
+                        <img th:src="@{/Img/Sena.png}" alt="SENA" width="30" height="30" class="object-fit-contain"/>
+                    </span>
+                    <span class="d-flex flex-column lh-sm">
+                        <span class="fw-bold text-white fs-5" id="sidebarFimacorTitulo">FIMACOR</span>
+                        <span class="small text-white text-opacity-50">Gestión de maquinaria · SENA</span>
+                    </span>
+                </a>
+                <button type="button" class="btn-close d-lg-none" data-bs-dismiss="offcanvas" data-bs-target="#sidebarFimacor" aria-label="Cerrar menú"></button>
+            </div>
+
+            <nav class="flex-grow-1 px-3 py-4" aria-label="Navegación principal">
+                <p class="small text-uppercase fw-semibold text-white text-opacity-50 px-3 mb-2">Operación</p>
+                <div class="nav nav-pills flex-column gap-1 mb-4">
+                    <a th:replace="~{fragments/nav :: enlace('/menu', 'bi-grid-1x2', 'Panel principal')}"></a>
+                    <th:block th:if="${navBar.puedeVerTablero()}">
+                        <a th:replace="~{fragments/nav :: enlace('/gerencia', 'bi-speedometer2', 'Tablero de gerencia')}"></a>
+                    </th:block>
+                    <th:block th:if="${navBar.puedeVerMaquinas()}">
+                        <a th:replace="~{fragments/nav :: enlace('/maquinas', 'bi-gear-wide-connected', ${navBar.esTecnico() ? 'Máquinas pendientes' : 'Máquinas'})}"></a>
+                    </th:block>
+                    <th:block th:if="${navBar.esTecnico()}">
+                        <a th:replace="~{fragments/nav :: enlace('/novedades?reparadas=true', 'bi-wrench-adjustable', 'Máquinas reparadas')}"></a>
+                    </th:block>
+                    <th:block th:if="${navBar.puedeVerMantenimiento()}">
+                        <a th:replace="~{fragments/nav :: enlace('/mantenimiento/programar', 'bi-calendar2-check', 'Mantenimiento')}"></a>
+                    </th:block>
+                    <th:block th:if="${navBar.esTecnico() or (navBar.puedeVerHistorialMantenimiento() and !navBar.puedeVerMantenimiento())}">
+                        <a th:replace="~{fragments/nav :: enlace('/mantenimiento/historial', 'bi-clock-history', 'Historial de reparaciones')}"></a>
+                    </th:block>
+                    <th:block th:if="${navBar.puedeVerReportes() or navBar.menuNovedades()}">
+                        <a th:replace="~{fragments/nav :: enlace('/novedades', 'bi-exclamation-triangle', 'Novedades')}"></a>
+                    </th:block>
+                    <th:block th:if="${navBar.puedeReubicarMaquinas() or navBar.menuReubicacion()}">
+                        <a th:replace="~{fragments/nav :: enlace('/reubicacion', 'bi-arrow-left-right', 'Reubicación')}"></a>
+                    </th:block>
+                    <th:block th:if="${navBar.puedeAsignarMaquinas()}">
+                        <a th:replace="~{fragments/nav :: enlace('/maquinas/asignar', 'bi-person-check', 'Asignar máquinas')}"></a>
+                    </th:block>
+                    <th:block th:if="${navBar.puedeVerMaquinasAsignadas()}">
+                        <a th:replace="~{fragments/nav :: enlace('/maquinas/mis-asignadas', 'bi-box-seam', 'Mis máquinas')}"></a>
+                    </th:block>
+                    <th:block th:if="${navBar.puedeVerManuales()}">
+                        <a th:replace="~{fragments/nav :: enlace('/manuales', 'bi-journal-text', 'Guía y manuales')}"></a>
+                    </th:block>
+                    <th:block th:if="${navBar.puedeVerUsuarios()}">
+                        <a th:replace="~{fragments/nav :: enlace('/usuarios', 'bi-people', 'Usuarios')}"></a>
+                    </th:block>
+                </div>
+
+                <th:block th:if="${navBar.puedeVerRolesPermisos() or navBar.puedeAdministrarMaquinas() or navBar.puedeAdministrarMantenimiento() or navBar.puedeGestionarSistema()}">
+                    <p class="small text-uppercase fw-semibold text-white text-opacity-50 px-3 mb-2">Administración</p>
+                    <div class="nav nav-pills flex-column gap-1">
+                        <th:block th:if="${navBar.puedeAdministrarMaquinas()}">
+                            <a th:replace="~{fragments/nav :: enlace('/maquinas/administracion', 'bi-hdd-stack', 'Administrar máquinas')}"></a>
+                        </th:block>
+                        <th:block th:if="${navBar.puedeAdministrarMantenimiento()}">
+                            <a th:replace="~{fragments/nav :: enlace('/mantenimiento/administracion', 'bi-clipboard2-check', 'Administrar mantenimiento')}"></a>
+                        </th:block>
+                        <th:block th:if="${navBar.puedeVerRolesPermisos()}">
+                            <a th:replace="~{fragments/nav :: enlace('/roles', 'bi-shield-lock', 'Roles')}"></a>
+                            <a th:replace="~{fragments/nav :: enlace('/permisos', 'bi-key', 'Permisos')}"></a>
+                        </th:block>
+                        <th:block th:if="${navBar.puedeGestionarSistema()}">
+                            <a th:replace="~{fragments/nav :: enlace('/configuracion', 'bi-sliders', 'Configuración')}"></a>
+                            <a th:replace="~{fragments/nav :: enlace('/importacion', 'bi-file-earmark-arrow-up', 'Importar inventario')}"></a>
+                        </th:block>
+                    </div>
+                </th:block>
+                <p class="small text-uppercase fw-semibold text-white text-opacity-50 px-3 mb-2 mt-4">Soporte</p>
+                <div class="nav nav-pills flex-column gap-1">
+                    <a th:replace="~{fragments/nav :: enlace('/ayuda', 'bi-lightbulb', 'Ayuda')}"></a>
+                </div>
+            </nav>
+
+            <div class="border-top border-light border-opacity-10 p-3">
+                <div class="d-flex align-items-center gap-3 rounded-3 bg-white bg-opacity-10 p-2 mb-3">
+                    <span class="position-relative overflow-hidden d-inline-flex align-items-center justify-content-center flex-shrink-0 rounded-circle bg-success text-white fw-semibold small px-2 py-2">
+                        <span th:text="${navBar.usuarioIniciales()}">U</span>
+                        <img th:src="@{/perfil/foto}" alt="" class="position-absolute top-0 start-0 w-100 h-100 object-fit-cover" onerror="this.remove()"/>
+                    </span>
+                    <span class="d-flex flex-column lh-sm overflow-hidden">
+                        <span class="small fw-semibold text-white text-truncate" th:text="${navBar.usuarioNombre()}">Usuario</span>
+                        <span class="small text-white text-opacity-50 text-truncate" th:text="${navBar.usuarioRol()}">Rol</span>
+                    </span>
+                </div>
+                <a th:href="@{/logout}" id="btnCerrarSesion" class="btn btn-outline-light btn-sm w-100 d-flex align-items-center justify-content-center gap-2">
+                    <i class="bi bi-box-arrow-left" aria-hidden="true"></i> Cerrar sesión
+                </a>
+            </div>
+        </div>
+    </div>
+</aside>
+
+<!-- Cabecera superior fija de cada pagina interna. -->
+<header th:fragment="topbar(titulo)" class="sticky-top bg-white border-bottom shadow-sm d-print-none">
+    <div class="d-flex align-items-center gap-3 px-3 px-md-4 py-3">
+        <button type="button" class="btn btn-light border d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#sidebarFimacor"
+                aria-controls="sidebarFimacor" aria-label="Abrir menú">
+            <i class="bi bi-list fs-5" aria-hidden="true"></i>
+        </button>
+        <nav aria-label="Ruta" class="overflow-hidden">
+            <ol class="breadcrumb mb-0 small flex-nowrap">
+                <li class="breadcrumb-item"><a th:href="@{/menu}" class="link-secondary text-decoration-none">FIMACOR</a></li>
+                <li class="breadcrumb-item active fw-semibold text-body text-truncate" aria-current="page" th:text="${titulo}">Sección</li>
+            </ol>
+        </nav>
+        <div class="ms-auto d-flex align-items-center gap-3">
+            <a th:href="@{/ayuda}" class="btn btn-light border rounded-circle flex-shrink-0" title="Ayuda: manuales y videos" aria-label="Ayuda: manuales y videos"
+               th:classappend="${navBar != null and navBar.activo('/ayuda')} ? 'border-warning'">
+                <i class="bi bi-lightbulb text-warning" aria-hidden="true"></i>
+            </a>
+            <span class="d-none d-md-inline-flex align-items-center gap-2 small text-secondary">
+                <i class="bi bi-calendar3" aria-hidden="true"></i>
+                <span th:text="${#temporals.format(#temporals.createNow(), 'dd/MM/yyyy')}">fecha</span>
+            </span>
+            <span class="position-relative overflow-hidden d-inline-flex align-items-center justify-content-center rounded-circle border border-2 border-success text-success fw-semibold small px-2 py-2"
+                  th:title="${navBar.usuarioNombre()}">
+                <span th:text="${navBar.usuarioIniciales()}">U</span>
+                <img th:src="@{/perfil/foto}" alt="" class="position-absolute top-0 start-0 w-100 h-100 object-fit-cover" onerror="this.remove()"/>
+            </span>
+        </div>
+    </div>
+</header>
+
+<!-- Scripts comunes de las vistas internas (Bootstrap JS para offcanvas, modales y menus). -->
+<th:block th:fragment="scripts">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script th:inline="javascript">
+    window.FIMACOR_QR_BASE_ORIGIN = /*[[${navBar.qrBaseOrigin()}]]*/ "";
+    window.FIMACOR_USUARIO_CORREO = /*[[${navBar.usuarioCorreo()}]]*/ "";
+    window.FIMACOR_PUEDE_REGISTRO_ADMIN = /*[[${navBar.puedeCrearUsuarios()}]]*/ false;
+    document.addEventListener("keydown", function (event) {
+        const tecla = (event.key || "").toLowerCase();
+        if (window.FIMACOR_PUEDE_REGISTRO_ADMIN && event.ctrlKey && event.altKey && tecla === "f") {
+            event.preventDefault();
+            if (window.abrirSelectorRolAdminFimacor) {
+                window.abrirSelectorRolAdminFimacor();
+            } else {
+                window.location.href = "/registro?origen=admin&abrirRol=1";
+            }
+        }
+    });
+</script>
+<script th:src="@{/Script.js/Fimacor_effects.js}"></script>
+<script th:src="@{/Script.js/fimacor-app-atras.js}"></script>
+</th:block>
+
+</body>
+</html>

@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes"/>
+    <title>FIMACOR | Reubicación de Máquina</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous"/>
+    <link rel="stylesheet" th:href="@{/Estyle.css/fimacor-theme.css}"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+" crossorigin="anonymous"/>
+</head>
+<body class="reubicacionmaquina-form bg-body-tertiary">
+    <div class="row g-0 min-vh-100">
+    <th:block th:replace="~{fragments/nav :: sidebar}"></th:block>
+    <div class="col-12 col-lg-9 col-xxl-10 d-flex flex-column">
+        <th:block th:replace="~{fragments/nav :: topbar('Reubicación de Máquina')}"></th:block>
+        <main class="flex-grow-1 px-3 px-md-4 px-xxl-5 py-4">
+
+    <div class="reubicacion-page reubicacion-page-unificada">
+        <div class="reubicacion-main-card">
+            <div class="reubicacion-main-header d-flex justify-content-between align-items-center gap-3 border-bottom pb-3 mb-4">
+                <div>
+                    <h1 class="h3 fw-bold mb-0">Reubicación de Máquina</h1>
+                </div>
+            </div>
+
+        <div class="alerta-reubicacion exito alert py-2 alert-success" th:if="${param.autorizacion != null and param.autorizacion[0] == 'ok'}">Decisión de reubicación registrada. Si fue aprobada, la ubicación de la máquina ya fue actualizada.</div>
+        <div class="alerta-reubicacion error alert py-2 alert-danger" th:if="${param.autorizacion != null and param.autorizacion[0] != 'ok'}"
+             th:text="${param.autorizacion[0] == 'sin_permiso'} ? 'No tienes permiso para responder esta solicitud.'
+                     : (${param.autorizacion[0] == 'firma_requerida'} ? 'No se pudo responder: para aprobar la solicitud debe tener evidencia adjunta, y la firma electrónica y la confirmación son obligatorias.'
+                     : (${param.autorizacion[0] == 'firma_error'} ? 'No fue posible guardar la firma manuscrita. Intenta firmar nuevamente.'
+                     : (${param.autorizacion[0] == 'estado'} ? 'Esta solicitud ya no está pendiente (ya fue respondida o cancelada).'
+                     : (${param.autorizacion[0] == 'aplicar'} ? 'No se puede aprobar: la solicitud no tiene máquina, sede, ambiente o área de destino completos (suele pasar con registros antiguos). Rechácela o elimínela.'
+                     : (${param.autorizacion[0] == 'observacion'} ? 'Escribe la observación de la decisión: es obligatoria tanto al aprobar como al rechazar.'
+                     : (${param.autorizacion[0] == 'decision_invalida'} ? 'La decisión enviada no es válida.'
+                     : 'No se pudo registrar la respuesta de autorización.'))))))">Error</div>
+
+        <details th:if="${puedeRegistrar}" class="reubicacion-card reubicacion-form-collapsible mb-4" th:open="${param.error != null}">
+            <summary class="reubicacion-form-summary position-relative d-flex flex-column bg-success text-white rounded-3 shadow-sm ps-4 pe-5 py-3 mx-auto col-12 col-md-8 col-lg-5">
+                <span class="fw-bold fs-6">Registrar nueva reubicación</span>
+                <small class="opacity-75 fw-semibold">Máquina, destino, autorización y evidencia</small>
+            <span class="position-absolute top-50 end-0 translate-middle-y me-3 d-inline-flex align-items-center justify-content-center rounded-circle bg-white bg-opacity-25 fw-bold px-2" aria-hidden="true">+</span></summary>
+            <div class="reubicacion-form-body bg-white border rounded-4 shadow-sm p-3 p-md-4 mt-3">
+                <div class="reubicacion-header d-flex justify-content-between align-items-center gap-3 mb-3">
+                    <div>
+                        <h1 class="h3 fw-bold text-success mb-1">Reubicación de Máquina</h1>
+                        <p class="small text-secondary mb-0">Todos los traslados requieren aprobación y firma electrónica de Subdirección. El externo exige evidencia.</p>
+                    </div>
+                </div>
+
+                <div class="alerta-reubicacion exito alert py-2 alert-success" th:if="${param.registro != null and param.registro[0] == 'ok'}">Solicitud registrada correctamente. Queda pendiente de aprobación y firma electrónica de Subdirección.</div>
+                <div class="alerta-reubicacion exito alert py-2 alert-success" th:if="${param.correo != null and param.correo[0] == 'ok'}">Correo enviado a Subdirección con el PDF de la solicitud adjunto.</div>
+                <div class="alerta-reubicacion error alert py-2 alert-danger" th:if="${param.correo != null and param.correo[0] == 'error'}">La solicitud se guardó, pero no se pudo enviar el correo. Verifica la configuración de correo del servidor.</div>
+                <div class="alerta-reubicacion exito alert py-2 alert-success" th:if="${param.evidencia != null and param.evidencia[0] == 'eliminada'}">Evidencia eliminada correctamente.</div>
+                <div class="alerta-reubicacion error alert py-2 alert-danger" th:if="${param.evidencia != null and param.evidencia[0] == 'error'}">No se pudo eliminar la evidencia.</div>
+                <div class="alerta-reubicacion exito alert py-2 alert-success" th:if="${param.registro != null and param.registro[0] == 'eliminado'}">Movimiento de reubicación eliminado correctamente.</div>
+                <div class="alerta-reubicacion error alert py-2 alert-danger" th:if="${param.registro != null and param.registro[0] == 'error'}">No se pudo eliminar el movimiento de reubicación.</div>
+                <div class="alerta-reubicacion error alert py-2 alert-danger" th:if="${param.error != null}"
+                     th:text="${param.error[0] == 'datos'} ? 'Selecciona una máquina y completa los datos obligatorios de la reubicación.'
+                             : (${param.error[0] == 'evidencia'} ? 'Adjunta la evidencia del traslado en formato PNG, JPG, WEBP o PDF.'
+                             : (${param.error[0] == 'sede_interna'} ? 'No se pudo determinar la sede interna (Complejo Sur) para el traslado.'
+                             : (${param.error[0] == 'archivo_grande'} ? 'La evidencia adjunta es demasiado grande (máximo 20 MB). Comprime la imagen o el PDF e inténtalo de nuevo.'
+                             : 'No se pudo registrar la reubicación. Revisa los datos y la evidencia.')))">Error</div>
+
+                <form th:action="@{/reubicacion}" method="post" enctype="multipart/form-data" class="reubicacion-form row row-cols-1 row-cols-md-2 g-3">
+                    <div class="campo-reubicacion d-flex flex-column">
+                        <label class="form-label fw-semibold small text-success mb-1" for="sedeDestino">Sede destino</label>
+                        <select class="form-select" id="sedeDestino" name="sedeDestino" required>
+                            <option value="">Seleccione una sede</option>
+                            <option th:each="s : ${sedes}" th:value="${s.idSede}" th:text="${s.nombreSede}"></option>
+                        </select>
+                    </div>
+
+                    <div class="campo-reubicacion d-flex flex-column">
+                        <label class="form-label fw-semibold small text-success mb-1" for="fecha">Fecha del movimiento</label>
+                        <input class="form-control" type="date" id="fecha" name="fecha" required/>
+                    </div>
+
+                    <div class="campo-reubicacion d-flex flex-column">
+                        <label class="form-label fw-semibold small text-success mb-1" for="tipoTraslado">Tipo de traslado</label>
+                        <select class="form-select" id="tipoTraslado" name="tipoTraslado" required>
+                            <option value="Interno">Interno</option>
+                            <option value="Externo">Externo</option>
+                        </select>
+                        <small class="ayuda-reubicacion form-text">Todos requieren evidencia y aprobación de Subdirección antes de ejecutar el movimiento.</small>
+                        <div id="destinatariosReubicacion" class="destinatarios-reubicacion alert alert-info small py-2 mt-2 mb-0" hidden aria-live="polite"></div>
+                    </div>
+
+                    <div class="campo-reubicacion d-flex flex-column">
+                        <label class="form-label fw-semibold small text-success mb-1" for="origen">Ubicación actual</label>
+                        <input class="form-control" type="text" id="origen" name="origen" maxlength="45" placeholder="Selecciona una máquina para ver su ubicación" readonly required/>
+                    </div>
+
+                    <div class="campo-reubicacion d-flex flex-column">
+                        <label class="form-label fw-semibold small text-success mb-1" for="areaDestino">Área destino</label>
+                        <select class="form-select" id="areaDestino" name="areaDestino" required>
+                            <option value="">Seleccione un área</option>
+                            <option th:each="a : ${areas}" th:value="${a.nombreArea}"
+                                    th:attr="data-sede=${a.sede != null ? a.sede.idSede : 0}"
+                                    th:text="${a.nombreArea}"></option>
+                        </select>
+                        <small id="ayudaDestinoReubicacion" class="ayuda-reubicacion form-text" aria-live="polite"></small>
+                    </div>
+
+                    <div class="campo-reubicacion d-flex flex-column">
+                        <label class="form-label fw-semibold small text-success mb-1" for="ambienteDestino">Ambiente a donde se envía</label>
+                        <select class="form-select" id="ambienteDestino" name="ambienteDestino" required>
+                            <option value="">Seleccione un ambiente</option>
+                            <option th:each="am : ${ambientes}" th:value="${am.idAmbientesDeAprendizaje}"
+                                    th:attr="data-nombre=${am.descripcionAmbiente},data-sede=${am.sede != null ? am.sede.idSede : 0}"
+                                    th:text="${am.descripcionAmbiente}"></option>
+                        </select>
+                        <input type="hidden" id="destino" name="destino"/>
+                    </div>
+
+                    <div class="campo-reubicacion d-flex flex-column">
+                        <label class="form-label fw-semibold small text-success mb-1" for="maquina">Máquina a mover</label>
+                        <select class="form-select" id="maquina" name="maquina" required disabled>
+                            <option value="">Primero selecciona una sede destino</option>
+                            <option th:each="m : ${maquinas}"
+                                    th:value="${m.idMaquinas}"
+                                    th:attr="data-origen=${m.ambiente != null ? m.ambiente.descripcionAmbiente : 'Sin ambiente registrado'},
+                                              data-sede=${m.sede != null ? m.sede.idSede : 0},
+                                              data-sede-nombre=${m.sede != null ? m.sede.nombreSede : 'Sin sede registrada'},
+                                              data-area=${m.area},
+                                              data-asignado='No tiene usuario asignado',
+                                              data-ambiente=${m.ambiente != null ? m.ambiente.idAmbientesDeAprendizaje : 0},
+                                              data-codigo=${m.codigoSena},
+                                              data-descripcion=${m.descripcion}"
+                                    th:text="${T(com.fimacor.novedades.util.NovedadTexto).textoCorto(m.codigoSena, 18)} + ' - ' + ${T(com.fimacor.novedades.util.NovedadTexto).textoCorto(m.descripcion, 42)} + ' | ' + ${T(com.fimacor.novedades.util.NovedadTexto).textoCorto(m.ambiente != null ? m.ambiente.descripcionAmbiente : 'Sin ambiente registrado', 24)}"></option>
+                        </select>
+                        <div class="resumen-maquina-reubicacion vstack gap-1 border rounded-3 bg-success-subtle small p-2 mt-2" id="resumenMaquinaReubicacion" aria-live="polite">
+                            <strong>Selecciona el destino y luego la máquina.</strong>
+                            <span>Solo se mostrarán las máquinas de la sede, área y ambiente seleccionados.</span>
+                        </div>
+                    </div>
+
+                    <div class="campo-reubicacion campo-autorizacion-manual d-flex flex-column" hidden>
+                        <label class="form-label fw-semibold small text-success mb-1" for="autorizadoPor">Quién autoriza</label>
+                        <input class="form-control" type="text" id="autorizadoPor" name="autorizadoPor" maxlength="45" placeholder="Nombre de quien autoriza"/>
+                    </div>
+
+                    <div class="campo-reubicacion campo-autorizacion-manual d-flex flex-column" hidden>
+                        <label class="form-label fw-semibold small text-success mb-1" for="autorizacion">Autorización</label>
+                        <input class="form-control" type="text" id="autorizacion" name="autorizacion" maxlength="45" placeholder="Ejemplo: correo aprobado"/>
+                    </div>
+
+                    <div class="campo-reubicacion campo-full d-flex flex-column w-100">
+                        <label class="form-label fw-semibold small text-success mb-1" for="descripcion">Descripción del movimiento</label>
+                        <textarea class="form-control" id="descripcion" name="descripcion" maxlength="500" placeholder="Motivo de la reubicación" required></textarea>
+                    </div>
+
+                    <div class="campo-reubicacion campo-full d-flex flex-column w-100">
+                        <label class="form-label fw-semibold small text-success mb-1" for="observacion">Observación opcional</label>
+                        <textarea class="form-control" id="observacion" name="observacion" maxlength="500" placeholder="Notas adicionales si aplica"></textarea>
+                    </div>
+
+                    <div class="campo-reubicacion campo-full evidencia-box d-flex flex-column w-100" id="evidenciaReubicacionBox">
+                        <label class="form-label fw-semibold small text-success mb-1" for="evidencia">Evidencia obligatoria</label>
+                        <div class="evidencia-selector-reubicacion d-flex gap-2 align-items-center">
+                            <input class="form-control" type="file" id="evidencia" name="evidencia" accept="image/png,image/jpeg,image/webp,application/pdf"/>
+                            <button type="button" id="quitarEvidencia" class="btn-quitar-evidencia btn btn-outline-danger btn-sm text-nowrap" disabled>Quitar evidencia</button>
+                        </div>
+                        <small id="ayudaEvidenciaReubicacion" class="form-text">Adjunta evidencia en PNG, JPG, WEBP o PDF. Sin evidencia no se registra ni ejecuta el traslado.</small>
+                        <label class="check-evidencia-reubicacion form-check-label d-flex align-items-center gap-2 border rounded-3 bg-body-tertiary small fw-semibold p-2 mt-2" id="confirmacionEvidenciaExterna">
+                            <input class="form-check-input mt-0" type="checkbox" id="evidenciaConfirmada" name="evidenciaConfirmada" value="si"/>
+                            <span id="textoConfirmacionEvidencia">Adjunta una evidencia para enviar la solicitud a Subdirección.</span>
+                        </label>
+                    </div>
+
+                    <div class="acciones-reubicacion w-100">
+                        <button class="btn btn-success fw-bold" type="submit" id="enviarReubicacion">Enviar solicitud de reubicación</button>
+                    </div>
+                </form>
+            </div>
+        </details>
+
+        <section class="reubicacion-card reubicacion-historial bg-white border rounded-4 shadow-sm p-3">
+            <div class="reubicacion-lista-header d-flex justify-content-between align-items-center gap-2 mb-3">
+                <h2 class="h5 fw-semibold mb-0">Movimientos registrados</h2>
+                <span class="badge rounded-pill bg-success-subtle text-success-emphasis fs-6" th:text="${reubicaciones.size()} + ' registros'">0 registros</span>
+            </div>
+            <form th:if="${puedeEliminarEvidencia}" id="formEliminarEvidenciasReubicacion" th:action="@{/EliminarEvidenciaReubicacionServlet}" method="post"
+                  class="reubicacion-bulk-form" onsubmit="return confirm('Eliminar los movimientos seleccionados de la base de datos. ¿Continuar?');">
+                <input type="hidden" name="accion" value="registro"/>
+
+                <div class="reubicacion-admin-panel d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-2 mb-3">
+                    <div class="admin-listado-resumen reubicacion-listado-resumen row row-cols-auto g-3">
+                        <div class="col"><div class="h-100 bg-white border rounded-4 shadow-sm p-3">
+                            <span class="admin-listado-label d-block small text-secondary">Registros visibles</span>
+                            <strong class="fs-4 text-success-emphasis" data-reubicacion-visible th:text="${reubicaciones.size()}">0</strong>
+                        </div></div>
+                        <div class="col"><div class="h-100 bg-white border rounded-4 shadow-sm p-3">
+                            <span class="admin-listado-label d-block small text-secondary">Seleccionadas</span>
+                            <strong class="fs-4 text-success-emphasis" data-reubicacion-selected>0</strong>
+                        </div></div>
+                    </div>
+                    <div class="btnsmaquinasregistradas reubicacion-admin-acciones d-flex flex-wrap justify-content-lg-end align-items-center gap-2">
+                        <button type="button" class="btnmaquinasregistradas btn-eliminarmaquinasregistradas no-abrir-modal btn btn-sm fw-bold btn-danger" data-reubicacion-start-delete>
+                            Eliminar
+                        </button>
+                        <label class="admin-select-all reubicacion-delete-mode-control no-abrir-modal small fw-semibold d-inline-flex align-items-center gap-1 d-none">
+                            <input class="form-check-input" type="checkbox" data-reubicacion-select-all/>
+                            <span>Seleccionar visibles</span>
+                        </label>
+                        <button type="submit" class="btnmaquinasregistradas btn-eliminarmaquinasregistradas reubicacion-delete-mode-control no-abrir-modal btn btn-sm fw-bold btn-danger d-none" data-reubicacion-delete-selected disabled>
+                            Eliminar seleccionados
+                        </button>
+                        <button type="button" class="btnmaquinasregistradas btn-admin-cancel-delete reubicacion-delete-mode-control no-abrir-modal btn btn-sm fw-bold btn-light border d-none" data-reubicacion-cancel-delete>
+                            Cancelar
+                        </button>
+                    </div>
+                </div>
+
+                <div class="tabla-reubicacion-wrap table-responsive bg-white border rounded-4 shadow-sm">
+                    <table class="tabla-reubicacion table table-hover align-middle text-center mb-0">
+                        <thead>
+                            <tr>
+                                <th class="reubicacion-col-check d-none bg-body-tertiary text-secondary text-uppercase small fw-semibold py-3">Seleccionar</th>
+                                <th class="bg-body-tertiary text-secondary text-uppercase small fw-semibold py-3">Código SENA</th>
+                                <th class="bg-body-tertiary text-secondary text-uppercase small fw-semibold py-3">Máquina</th>
+                                <th class="bg-body-tertiary text-secondary text-uppercase small fw-semibold py-3">Fecha</th>
+                                <th class="bg-body-tertiary text-secondary text-uppercase small fw-semibold py-3">Tipo</th>
+                                <th class="bg-body-tertiary text-secondary text-uppercase small fw-semibold py-3">Origen</th>
+                                <th class="bg-body-tertiary text-secondary text-uppercase small fw-semibold py-3">Destino</th>
+                                <th class="bg-body-tertiary text-secondary text-uppercase small fw-semibold py-3">Autoriza</th>
+                                <th class="bg-body-tertiary text-secondary text-uppercase small fw-semibold py-3">Estado</th>
+                                <th class="bg-body-tertiary text-secondary text-uppercase small fw-semibold py-3">Descripción</th>
+                                <th class="bg-body-tertiary text-secondary text-uppercase small fw-semibold py-3">Evidencia</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:if="${reubicaciones.isEmpty()}"><td colspan="11" class="text-secondary py-3">No hay reubicaciones registradas.</td></tr>
+                            <tr th:each="r : ${reubicaciones}" class="fila-detalle-reubicacion" data-reubicacion-row
+                                th:attr="data-modal='detalle-reubicacion-' + ${r.idRehubicacionMaquina}" tabindex="0">
+                                <td class="reubicacion-col-check no-abrir-modal d-none">
+                                    <input type="checkbox" name="idReubicacion" th:value="${r.idRehubicacionMaquina}" class="reubicacion-row-check form-check-input"/>
+                                </td>
+                                <td th:text="${r.maquina != null and r.maquina.codigoSena != null and !r.maquina.codigoSena.isBlank()} ? ${r.maquina.codigoSena} : 'Registro antiguo sin código'">codigo</td>
+                                <td th:text="${r.maquina != null and r.maquina.descripcion != null and !r.maquina.descripcion.isBlank()} ? ${r.maquina.descripcion} : 'Registro antiguo sin máquina vinculada'">descripcion</td>
+                                <td th:text="${r.fecha}">fecha</td>
+                                <td th:text="${r.tipoTraslado != null and !r.tipoTraslado.isBlank()} ? ${r.tipoTraslado} : 'Interno'">tipo</td>
+                                <td th:text="${r.origenTexto}">origen</td>
+                                <td th:text="${r.destinoTexto}">destino</td>
+                                <td th:text="${r.autorizadoPor}">autoriza</td>
+                                <td>
+                                    <span class="estado-autorizacion"
+                                          th:classappend="${T(com.fimacor.reubicacion.util.ReubicacionTexto).estadoClase(r.estadoAutorizacion)}"
+                                          th:text="${T(com.fimacor.reubicacion.util.ReubicacionTexto).estadoTexto(r.estadoAutorizacion)}">estado</span>
+                                </td>
+                                <td th:text="${r.descripcionReubicacion}">descripcion</td>
+                                <td>
+                                    <a th:if="${r.evidencia != null and !r.evidencia.isBlank()}" th:href="@{/reubicacion/{id}/evidencia(id=${r.idRehubicacionMaquina})}" target="_blank" class="link-success fw-semibold">Ver evidencia</a>
+                                    <span class="small text-secondary" th:unless="${r.evidencia != null and !r.evidencia.isBlank()}">Sin evidencia</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </form>
+
+            <div th:unless="${puedeEliminarEvidencia}" class="tabla-reubicacion-wrap table-responsive bg-white border rounded-4 shadow-sm">
+                <table class="tabla-reubicacion table table-hover align-middle text-center mb-0">
+                    <thead>
+                        <tr>
+                            <th class="bg-body-tertiary text-secondary text-uppercase small fw-semibold py-3">Código SENA</th><th class="bg-body-tertiary text-secondary text-uppercase small fw-semibold py-3">Máquina</th><th class="bg-body-tertiary text-secondary text-uppercase small fw-semibold py-3">Fecha</th><th class="bg-body-tertiary text-secondary text-uppercase small fw-semibold py-3">Tipo</th><th class="bg-body-tertiary text-secondary text-uppercase small fw-semibold py-3">Origen</th>
+                            <th class="bg-body-tertiary text-secondary text-uppercase small fw-semibold py-3">Destino</th><th class="bg-body-tertiary text-secondary text-uppercase small fw-semibold py-3">Autoriza</th><th class="bg-body-tertiary text-secondary text-uppercase small fw-semibold py-3">Estado</th><th class="bg-body-tertiary text-secondary text-uppercase small fw-semibold py-3">Descripción</th><th class="bg-body-tertiary text-secondary text-uppercase small fw-semibold py-3">Evidencia</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:if="${reubicaciones.isEmpty()}"><td colspan="10" class="text-secondary py-3">No hay reubicaciones registradas.</td></tr>
+                        <tr th:each="r : ${reubicaciones}" class="fila-detalle-reubicacion" data-reubicacion-row
+                            th:attr="data-modal='detalle-reubicacion-' + ${r.idRehubicacionMaquina}" tabindex="0">
+                            <td th:text="${r.maquina != null and r.maquina.codigoSena != null and !r.maquina.codigoSena.isBlank()} ? ${r.maquina.codigoSena} : 'Registro antiguo sin código'">codigo</td>
+                            <td th:text="${r.maquina != null and r.maquina.descripcion != null and !r.maquina.descripcion.isBlank()} ? ${r.maquina.descripcion} : 'Registro antiguo sin máquina vinculada'">descripcion</td>
+                            <td th:text="${r.fecha}">fecha</td>
+                            <td th:text="${r.tipoTraslado != null and !r.tipoTraslado.isBlank()} ? ${r.tipoTraslado} : 'Interno'">tipo</td>
+                            <td th:text="${r.origenTexto}">origen</td>
+                            <td th:text="${r.destinoTexto}">destino</td>
+                            <td th:text="${r.autorizadoPor}">autoriza</td>
+                            <td>
+                                <span class="estado-autorizacion"
+                                      th:classappend="${T(com.fimacor.reubicacion.util.ReubicacionTexto).estadoClase(r.estadoAutorizacion)}"
+                                      th:text="${T(com.fimacor.reubicacion.util.ReubicacionTexto).estadoTexto(r.estadoAutorizacion)}">estado</span>
+                            </td>
+                            <td th:text="${r.descripcionReubicacion}">descripcion</td>
+                            <td>
+                                <a th:if="${r.evidencia != null and !r.evidencia.isBlank()}" th:href="@{/reubicacion/{id}/evidencia(id=${r.idRehubicacionMaquina})}" target="_blank" class="link-success fw-semibold">Ver evidencia</a>
+                                <span class="small text-secondary" th:unless="${r.evidencia != null and !r.evidencia.isBlank()}">Sin evidencia</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <section class="evidencias-reubicacion border-top pt-3 mt-4" aria-labelledby="titulo-evidencias-reubicacion">
+                <div class="reubicacion-lista-header mb-3"><div><h2 class="h5 fw-semibold mb-1" id="titulo-evidencias-reubicacion">Evidencias de reubicación</h2><p class="small text-secondary mb-0">Actas aprobadas con los datos del traslado, evidencia, firma digital y enlace QR.</p></div></div>
+                <div class="evidencias-reubicacion-lista d-flex flex-column gap-2">
+                    <article th:each="r : ${reubicaciones}" th:if="${T(com.fimacor.reubicacion.util.ReubicacionTexto).tieneActa(r.estadoAutorizacion)}"
+                             class="evidencia-reubicacion-item fila-evidencia-reubicacion d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 border rounded-3 p-3" th:attr="data-detalle-reubicacion-id=${r.idRehubicacionMaquina}"
+                             tabindex="0" role="button" th:aria-label="'Ver detalle de la reubicación TR-' + ${r.idRehubicacionMaquina}">
+                        <div>
+                            <strong th:text="'TR-' + ${r.idRehubicacionMaquina} + ' · ' + (${r.maquina != null and r.maquina.codigoSena != null and !r.maquina.codigoSena.isBlank()} ? ${r.maquina.codigoSena} : 'Registro antiguo sin código')">TR</strong>
+                            <span th:text="(${r.maquina != null and r.maquina.descripcion != null and !r.maquina.descripcion.isBlank()} ? ${r.maquina.descripcion} : 'Registro antiguo sin máquina vinculada') + ' · ' + ${r.origenTexto} + ' → ' + ${r.destinoTexto}">detalle</span>
+                        </div>
+                        <span class="evidencia-reubicacion-ayuda small text-success fw-semibold">Haz clic para ver la evidencia completa</span>
+                    </article>
+                    <p th:unless="${hayEvidenciasReubicacion}" class="evidencias-reubicacion-vacia text-secondary small mb-0">Las evidencias aparecerán aquí cuando una solicitud sea aprobada y firmada.</p>
+                </div>
+            </section>
+
+            <div th:each="r : ${reubicaciones}" class="modal-reubicacion-detalle modal d-block d-none bg-dark bg-opacity-75" th:id="'detalle-reubicacion-' + ${r.idRehubicacionMaquina}" aria-hidden="true">
+                <div class="modal-reubicacion-contenido modal-dialog modal-lg modal-content border-0 rounded-4 shadow-lg p-3 p-md-4" role="dialog" aria-modal="true" th:aria-labelledby="'titulo-reubicacion-' + ${r.idRehubicacionMaquina}">
+                    <button type="button" class="cerrar-modal-reubicacion btn-close position-absolute top-0 end-0 m-3" aria-label="Cerrar"></button>
+                    <h3 class="h5 fw-semibold border-bottom pb-3 mb-3 pe-5" th:id="'titulo-reubicacion-' + ${r.idRehubicacionMaquina}">Detalle de reubicación</h3>
+                    <div class="detalle-reubicacion-grid small mb-3">
+                        <p class="mb-1"><strong>Máquina reubicada:</strong>
+                            <span th:text="(${r.maquina != null and r.maquina.codigoSena != null and !r.maquina.codigoSena.isBlank()} ? ${r.maquina.codigoSena} : 'Registro antiguo sin código') + ' - ' + (${r.maquina != null and r.maquina.descripcion != null and !r.maquina.descripcion.isBlank()} ? ${r.maquina.descripcion} : 'Registro antiguo sin máquina vinculada')"></span>
+                        </p>
+                        <p class="mb-1"><strong>Fecha del movimiento:</strong> <span th:text="${r.fecha}"></span></p>
+                        <p class="mb-1"><strong>Tipo de traslado:</strong> <span th:text="${r.tipoTraslado != null and !r.tipoTraslado.isBlank()} ? ${r.tipoTraslado} : 'Interno'"></span></p>
+                        <p class="mb-1"><strong>Ubicación actual / origen:</strong> <span th:text="${r.origenTexto}"></span></p>
+                        <p class="mb-1"><strong>A dónde se envía / destino:</strong> <span th:text="${r.destinoTexto}"></span></p>
+                        <p class="mb-1"><strong>Quién autoriza:</strong> <span th:text="${r.autorizadoPor}"></span></p>
+                        <p class="mb-1"><strong>Estado de autorización:</strong>
+                            <span class="estado-autorizacion"
+                                  th:classappend="${T(com.fimacor.reubicacion.util.ReubicacionTexto).estadoClase(r.estadoAutorizacion)}"
+                                  th:text="${T(com.fimacor.reubicacion.util.ReubicacionTexto).estadoTexto(r.estadoAutorizacion)}"></span>
+                        </p>
+                        <p class="mb-1"><strong>Autorización:</strong> <span th:text="${r.autorizacion}"></span></p>
+                        <p class="mb-1"><strong>Respuesta y firma:</strong> <span th:text="${r.respuestaAutorizacion != null and !r.respuestaAutorizacion.isBlank()} ? ${r.respuestaAutorizacion} : 'Pendiente de firma'"></span></p>
+                        <p class="mb-1"><strong>Descripción del movimiento:</strong> <span th:text="${r.descripcionReubicacion}"></span></p>
+                        <p class="mb-1"><strong>Observación:</strong> <span th:text="${r.observacion != null and !r.observacion.isBlank()} ? ${r.observacion} : 'Sin observación'"></span></p>
+                        <p class="mb-1"><strong>Evidencia:</strong>
+                            <a th:if="${r.evidencia != null and !r.evidencia.isBlank()}" th:href="@{/reubicacion/{id}/evidencia(id=${r.idRehubicacionMaquina})}" target="_blank" class="link-success fw-semibold">Ver evidencia</a>
+                            <span class="small text-secondary" th:unless="${r.evidencia != null and !r.evidencia.isBlank()}">Sin evidencia</span>
+                            <form th:if="${puedeEliminarEvidencia and r.evidencia != null and !r.evidencia.isBlank()}"
+                                  th:action="@{/EliminarEvidenciaReubicacionServlet}" method="post" class="form-eliminar-evidencia-reubicacion d-inline ms-2"
+                                  onsubmit="return confirm('Eliminar esta evidencia. ¿Continuar?');">
+                                <input type="hidden" name="idReubicacion" th:value="${r.idRehubicacionMaquina}"/>
+                                <button type="submit" class="btnmaquinasregistradas btn-eliminarmaquinasregistradas btn btn-sm fw-bold btn-danger">Eliminar evidencia</button>
+                            </form>
+                        </p>
+                    </div>
+
+                    <div th:if="${T(com.fimacor.reubicacion.util.ReubicacionTexto).tieneActa(r.estadoAutorizacion)}">
+                        <div class="detalle-reubicacion-acciones d-flex flex-wrap gap-2 mb-3">
+                            <a th:href="@{/ActaReubicacionPdfServlet(id=${r.idRehubicacionMaquina})}" target="_blank" class="btn btn-outline-success btn-sm">Descargar acta PDF</a>
+                            <a th:href="@{/FirmaReubicacionServlet(id=${r.idRehubicacionMaquina})}" target="_blank" class="btn btn-outline-success btn-sm">Ver firma digital</a>
+                        </div>
+                        <div class="fimacor-qr-acta" th:attr="data-acta-id=${r.idRehubicacionMaquina}"></div>
+                    </div>
+
+                    <div th:if="${r.estadoAutorizacion == 'Pendiente' and (puedeAutorizar or (puedeAutorizarExterno and r.tipoTraslado == 'Externo') or (puedeAutorizarInterna and r.tipoTraslado == 'Interno'))}"
+                         class="reubicacion-aprobacion-inline border rounded-3 p-3 d-flex flex-column gap-2">
+                        <h4 class="h6 fw-bold text-success border-bottom pb-2 mb-2">Firma electrónica de aprobación</h4>
+                        <p class="ayuda-reubicacion small text-secondary mb-0">La aprobación normalmente se hace desde la campanita de notificaciones; se deja aquí también para no depender de esa pantalla.</p>
+                        <canvas th:id="'firma' + ${r.idRehubicacionMaquina}" width="360" height="150" class="border rounded-3 bg-white"></canvas>
+                        <div><button type="button" class="btn-cancelar-operacion btn btn-light border fw-bold" th:onclick="'limpiarFirma(' + ${r.idRehubicacionMaquina} + ')'">Limpiar firma</button></div>
+                        <form th:action="@{/reubicacion/{id}/responder(id=${r.idRehubicacionMaquina})}" method="post"
+                              th:onsubmit="'return prepararFirma(' + ${r.idRehubicacionMaquina} + ', this)'">
+                            <input type="hidden" name="firmaDigital"/>
+                            <div class="campo-reubicacion d-flex flex-column mb-2">
+                                <label class="form-label fw-semibold small text-success mb-1">Observación de la decisión (obligatoria)</label>
+                                <input class="form-control" type="text" name="observacionDecision" maxlength="255" required placeholder="Concepto de aprobación o motivo de rechazo"/>
+                            </div>
+                            <div class="manuales-buttons d-flex flex-wrap gap-2 mt-3">
+                                <button type="submit" name="accion" value="aceptar" class="btn-agregar btn btn-success fw-bold">Aprobar</button>
+                                <button type="submit" name="accion" value="rechazar" class="btn btn-eliminar btn-danger fw-bold">Rechazar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+        </div>
+    </div>
+
+    <script th:src="@{/Script.js/Maquinas_registradas.js}" defer></script>
+    <script th:src="@{/Script.js/Reubicacion_maquina.js}"></script>
+    <script>
+        const lienzosReubicacion = {};
+        function inicializarFirma(id) {
+            const canvas = document.getElementById('firma' + id);
+            if (!canvas || lienzosReubicacion[id]) return;
+            const ctx = canvas.getContext('2d');
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            let dibujando = false;
+            function posicion(evento) {
+                const rect = canvas.getBoundingClientRect();
+                const punto = evento.touches ? evento.touches[0] : evento;
+                return { x: punto.clientX - rect.left, y: punto.clientY - rect.top };
+            }
+            function iniciar(evento) { dibujando = true; const p = posicion(evento); ctx.beginPath(); ctx.moveTo(p.x, p.y); }
+            function mover(evento) { if (!dibujando) return; const p = posicion(evento); ctx.lineTo(p.x, p.y); ctx.stroke(); evento.preventDefault(); }
+            function terminar() { dibujando = false; }
+            canvas.addEventListener('mousedown', iniciar);
+            canvas.addEventListener('mousemove', mover);
+            canvas.addEventListener('mouseup', terminar);
+            canvas.addEventListener('touchstart', iniciar);
+            canvas.addEventListener('touchmove', mover);
+            canvas.addEventListener('touchend', terminar);
+            lienzosReubicacion[id] = canvas;
+        }
+        function limpiarFirma(id) {
+            const canvas = document.getElementById('firma' + id);
+            if (canvas) canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+        }
+        function prepararFirma(id, formulario) {
+            const canvas = document.getElementById('firma' + id);
+            if (!canvas) return false;
+            formulario.querySelector('input[name=firmaDigital]').value = canvas.toDataURL('image/png');
+            return true;
+        }
+        document.querySelectorAll('canvas[id^="firma"]').forEach(function (c) { inicializarFirma(c.id.replace('firma', '')); });
+    </script>
+        </main>
+        <footer class="border-top bg-white small text-secondary text-center py-3 d-print-none">&copy; 2026 FIMACOR &middot; Sistema de Control de Máquinas Textiles &middot; CMTC &ndash; SENA</footer>
+    </div>
+</div>
+<th:block th:replace="~{fragments/nav :: scripts}"></th:block>
+</body>
+</html>

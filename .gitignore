@@ -1,0 +1,15 @@
+.env
+*.properties.local
+target/
+*.class
+.idea/
+*.iml
+fimacor-data/
+.claude/
+
+# Secreto real de WhatsApp (token + numeros) - solo el .example va al repo.
+# Ya quedo expuesto en el historial via bb31722/main; ver aviso de seguridad.
+fimacor-whatsapp.properties
+
+# Semillas locales de Docker: llevan contrasenas de prueba, no van al repo.
+docker/seed-*.sql

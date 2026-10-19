@@ -1,0 +1,56 @@
+# Entorno local de pruebas: MySQL 8 + FIMACOR (imagen construida con el Dockerfile del proyecto).
+# Uso: docker compose up -d --build   ->  http://localhost:8081
+# Las credenciales de aqui son solo para desarrollo local.
+services:
+  db:
+    image: mysql:8.0
+    container_name: fimacor-db
+    environment:
+      MYSQL_DATABASE: fimacor
+      MYSQL_USER: fimacor
+      MYSQL_PASSWORD: fimacor_local
+      MYSQL_ROOT_PASSWORD: fimacor_root_local
+      TZ: America/Bogota
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_general_ci"]
+    ports:
+      - "3307:3306"
+    volumes:
+      - fimacor-db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-ufimacor", "-pfimacor_local"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  app:
+    build: .
+    container_name: fimacor-app
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      FIMACOR_DB_HOST: db
+      FIMACOR_DB_PORT: "3306"
+      FIMACOR_DB_NAME: fimacor
+      FIMACOR_DB_USER: fimacor
+      FIMACOR_DB_PASSWORD: fimacor_local
+      FIMACOR_STORAGE_DIR: /opt/fimacor/data/uploads
+      PORT: "8081"
+    ports:
+      - "8081:8081"
+    volumes:
+      - fimacor-uploads:/opt/fimacor/data
+
+  # Tunel publico rapido de Cloudflare (sin cuenta). La URL https://*.trycloudflare.com
+  # aparece en: docker compose logs tunnel   -- cambia cada vez que se reinicia este servicio.
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: fimacor-tunnel
+    depends_on:
+      - app
+    command: ["tunnel", "--no-autoupdate", "--url", "http://app:8081"]
+    restart: unless-stopped
+
+volumes:
+  fimacor-db:
+  fimacor-uploads:

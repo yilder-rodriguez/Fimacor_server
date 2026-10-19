@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes"/>
+    <title>FIMACOR | Configuración</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous"/>
+    <link rel="stylesheet" th:href="@{/Estyle.css/fimacor-theme.css}"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+" crossorigin="anonymous"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+</head>
+<body class="configuracion-form bg-body-tertiary">
+
+    <div class="row g-0 min-vh-100">
+    <th:block th:replace="~{fragments/nav :: sidebar}"></th:block>
+    <div class="col-12 col-lg-9 col-xxl-10 d-flex flex-column">
+        <th:block th:replace="~{fragments/nav :: topbar('Configuración')}"></th:block>
+        <main class="flex-grow-1 px-3 px-md-4 px-xxl-5 py-4">
+
+    <div class="configuracion-container">
+        <div class="configuracion-hero d-flex align-items-center gap-3 mb-4 bg-success-subtle text-white rounded-3 shadow-sm p-3 p-md-4" data-bs-theme="dark">
+            <div class="configuracion-hero-icon d-flex align-items-center justify-content-center rounded-circle bg-white bg-opacity-25 text-white fs-3 px-3 py-2"><i class="fa-solid fa-gear"></i></div>
+            <div>
+                <h1 class="h2 text-white mb-1">Configuración</h1>
+                <p class="text-white text-opacity-75 mb-0">Administra los campos que alimentan los selectores de los formularios principales.</p>
+            </div>
+        </div>
+
+        <div class="configuracion-alerta configuracion-alerta-ok alert py-2 alert-success" th:if="${estado == 'ok'}">Cambio guardado correctamente.</div>
+        <div class="configuracion-alerta configuracion-alerta-error alert py-2 alert-danger" th:if="${estado == 'error'}">No se pudo aplicar el cambio. Revisa si el registro está en uso.</div>
+
+        <div class="configuracion-layout d-flex flex-column flex-lg-row gap-3">
+            <div class="configuracion-menu col-12 col-lg-3 d-flex flex-column gap-2">
+                <a class="btn btn-light border text-start d-flex align-items-center gap-2" th:classappend="${catalogoActual == 'tipo-maquina'} ? 'activo btn-success'" th:href="@{/configuracion(catalogo='tipo-maquina')}">
+                    <i class="fa-solid fa-sliders"></i><span>Tipo de máquina</span>
+                </a>
+                <a class="btn btn-light border text-start d-flex align-items-center gap-2" th:classappend="${catalogoActual == 'estado-maquina'} ? 'activo btn-success'" th:href="@{/configuracion(catalogo='estado-maquina')}">
+                    <i class="fa-solid fa-sliders"></i><span>Estado de máquina</span>
+                </a>
+                <a class="btn btn-light border text-start d-flex align-items-center gap-2" th:classappend="${catalogoActual == 'marca'} ? 'activo btn-success'" th:href="@{/configuracion(catalogo='marca')}">
+                    <i class="fa-solid fa-sliders"></i><span>Marca</span>
+                </a>
+                <a class="btn btn-light border text-start d-flex align-items-center gap-2" th:classappend="${catalogoActual == 'modelo'} ? 'activo btn-success'" th:href="@{/configuracion(catalogo='modelo')}">
+                    <i class="fa-solid fa-sliders"></i><span>Modelo</span>
+                </a>
+                <a class="btn btn-light border text-start d-flex align-items-center gap-2" th:classappend="${catalogoActual == 'tipo-mantenimiento'} ? 'activo btn-success'" th:href="@{/configuracion(catalogo='tipo-mantenimiento')}">
+                    <i class="fa-solid fa-sliders"></i><span>Mantenimientos</span>
+                </a>
+                <a class="btn btn-light border text-start d-flex align-items-center gap-2" th:classappend="${catalogoActual == 'tipos-manuales'} ? 'activo btn-success'" th:href="@{/configuracion(catalogo='tipos-manuales')}">
+                    <i class="fa-solid fa-sliders"></i><span>Tipos de manuales</span>
+                </a>
+                <a class="btn btn-light border text-start d-flex align-items-center gap-2" th:classappend="${catalogoActual == 'ambientes'} ? 'activo btn-success'" th:href="@{/configuracion(catalogo='ambientes')}">
+                    <i class="fa-solid fa-sliders"></i><span>Ambientes</span>
+                </a>
+                <a class="btn btn-light border text-start d-flex align-items-center gap-2" th:classappend="${catalogoActual == 'sedes'} ? 'activo btn-success'" th:href="@{/configuracion(catalogo='sedes')}">
+                    <i class="fa-solid fa-sliders"></i><span>Sedes</span>
+                </a>
+
+                <a class="btn btn-light border text-start d-flex align-items-center gap-2" th:classappend="${catalogoActual == 'areas'} ? 'activo btn-success'" th:href="@{/configuracion(catalogo='areas')}">
+                    <i class="fa-solid fa-sliders"></i><span>Áreas</span>
+                </a>
+
+                <a class="btn btn-light border text-start d-flex align-items-center gap-2" th:classappend="${catalogoActual == 'ubicaciones'} ? 'activo btn-success'" th:href="@{/configuracion(catalogo='ubicaciones')}">
+                    <i class="fa-solid fa-sliders"></i><span>Ubicaciones</span>
+                </a>
+                <a class="btn btn-light border text-start d-flex align-items-center gap-2" th:href="@{/reubicacion}">
+                    <i class="fa-solid fa-sliders"></i><span>Reubicaciones</span>
+                </a>
+            </div>
+
+            <!-- Tipo de maquina -->
+            <div class="configuracion-panel flex-fill bg-white border rounded-3 shadow-sm p-3" th:if="${catalogoActual == 'tipo-maquina'}">
+                <div class="configuracion-panel-header border-bottom pb-2 mb-3">
+                    <div><h2 class="h5 fw-semibold mb-1">Tipo de máquina</h2><p class="small text-secondary mb-0">Opciones del selector Tipo de máquina.</p></div>
+                </div>
+                <form class="configuracion-crear d-flex flex-wrap align-items-end gap-2 bg-success-subtle border rounded-3 p-3 mb-3" th:action="@{/configuracion/tipo-maquina}" method="post">
+                    <div class="configuracion-campo d-flex flex-column flex-grow-1">
+                        <label class="form-label fw-semibold small text-success mb-1" for="crear-descripcion_maquina">Descripción</label>
+                        <input class="form-control" id="crear-descripcion_maquina" name="descripcion_maquina" type="text" maxlength="150" required/>
+                    </div>
+                    <button class="btn btn-success fw-bold" type="submit"><i class="fa-solid fa-plus"></i> Agregar</button>
+                </form>
+                <div class="configuracion-lista d-flex flex-column">
+                    <div class="configuracion-row d-flex flex-wrap align-items-end gap-2 border-bottom py-2" th:each="tipo : ${tiposMaquina}">
+                        <form class="configuracion-editar d-flex flex-wrap align-items-end gap-2 flex-grow-1" th:action="@{/configuracion/tipo-maquina/{id}(id=${tipo.idTipoMaquina})}" method="post">
+                            <span class="configuracion-id badge text-bg-light border align-self-center" th:text="'#' + ${tipo.idTipoMaquina}">#1</span>
+                            <div class="configuracion-campo d-flex flex-column flex-grow-1">
+                                <label class="form-label fw-semibold small text-success mb-1">Descripción</label>
+                                <input class="form-control" name="descripcion_maquina" type="text" maxlength="150" th:value="${tipo.descripcionMaquina}" required/>
+                            </div>
+                            <button type="submit" class="configuracion-btn-guardar btn btn-success btn-sm"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
+                        </form>
+                        <form class="configuracion-eliminar" th:action="@{/configuracion/tipo-maquina/{id}/eliminar(id=${tipo.idTipoMaquina})}" method="post"
+                              onsubmit="return confirm('¿Eliminar este registro? Si está en uso, la base de datos no lo permitirá.');">
+                            <button class="btn btn-outline-danger" type="submit" aria-label="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                        </form>
+                    </div>
+                    <div class="configuracion-vacio text-secondary small py-2" th:if="${#lists.isEmpty(tiposMaquina)}">No hay registros en este catálogo.</div>
+                </div>
+            </div>
+
+            <!-- Estado de maquina -->
+            <div class="configuracion-panel flex-fill bg-white border rounded-3 shadow-sm p-3" th:if="${catalogoActual == 'estado-maquina'}">
+                <div class="configuracion-panel-header border-bottom pb-2 mb-3">
+                    <div><h2 class="h5 fw-semibold mb-1">Estado de máquina</h2><p class="small text-secondary mb-0">Estados usados para funcional, mantenimiento y fuera de servicio.</p></div>
+                </div>
+                <form class="configuracion-crear d-flex flex-wrap align-items-end gap-2 bg-success-subtle border rounded-3 p-3 mb-3" th:action="@{/configuracion/estado-maquina}" method="post">
+                    <div class="configuracion-campo d-flex flex-column flex-grow-1">
+                        <label class="form-label fw-semibold small text-success mb-1" for="crear-nombre_tipo">Nombre</label>
+                        <input class="form-control" id="crear-nombre_tipo" name="nombre_tipo" type="text" maxlength="45" required/>
+                    </div>
+                    <div class="configuracion-campo d-flex flex-column flex-grow-1">
+                        <label class="form-label fw-semibold small text-success mb-1" for="crear-descripcion_estado">Descripción</label>
+                        <input class="form-control" id="crear-descripcion_estado" name="descripcion_estado" type="text" maxlength="45" required/>
+                    </div>
+                    <button class="btn btn-success fw-bold" type="submit"><i class="fa-solid fa-plus"></i> Agregar</button>
+                </form>
+                <div class="configuracion-lista d-flex flex-column">
+                    <div class="configuracion-row d-flex flex-wrap align-items-end gap-2 border-bottom py-2" th:each="estadoItem : ${estadosMaquina}">
+                        <form class="configuracion-editar d-flex flex-wrap align-items-end gap-2 flex-grow-1" th:action="@{/configuracion/estado-maquina/{id}(id=${estadoItem.idEstadoDeMaquina})}" method="post">
+                            <span class="configuracion-id badge text-bg-light border align-self-center" th:text="'#' + ${estadoItem.idEstadoDeMaquina}">#1</span>
+                            <div class="configuracion-campo d-flex flex-column flex-grow-1">
+                                <label class="form-label fw-semibold small text-success mb-1">Nombre</label>
+                                <input class="form-control" name="nombre_tipo" type="text" maxlength="45" th:value="${estadoItem.nombreTipo}" required/>
+                            </div>
+                            <div class="configuracion-campo d-flex flex-column flex-grow-1">
+                                <label class="form-label fw-semibold small text-success mb-1">Descripción</label>
+                                <input class="form-control" name="descripcion_estado" type="text" maxlength="45" th:value="${estadoItem.descripcionEstado}" required/>
+                            </div>
+                            <button type="submit" class="configuracion-btn-guardar btn btn-success btn-sm"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
+                        </form>
+                        <form class="configuracion-eliminar" th:action="@{/configuracion/estado-maquina/{id}/eliminar(id=${estadoItem.idEstadoDeMaquina})}" method="post"
+                              onsubmit="return confirm('¿Eliminar este registro? Si está en uso, la base de datos no lo permitirá.');">
+                            <button class="btn btn-outline-danger" type="submit" aria-label="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                        </form>
+                    </div>
+                    <div class="configuracion-vacio text-secondary small py-2" th:if="${#lists.isEmpty(estadosMaquina)}">No hay registros en este catálogo.</div>
+                </div>
+            </div>
+
+            <!-- Marca -->
+            <div class="configuracion-panel flex-fill bg-white border rounded-3 shadow-sm p-3" th:if="${catalogoActual == 'marca'}">
+                <div class="configuracion-panel-header border-bottom pb-2 mb-3">
+                    <div><h2 class="h5 fw-semibold mb-1">Marca</h2><p class="small text-secondary mb-0">Marcas disponibles al registrar máquinas.</p></div>
+                </div>
+                <form class="configuracion-crear d-flex flex-wrap align-items-end gap-2 bg-success-subtle border rounded-3 p-3 mb-3" th:action="@{/configuracion/marca}" method="post">
+                    <div class="configuracion-campo d-flex flex-column flex-grow-1">
+                        <label class="form-label fw-semibold small text-success mb-1" for="crear-descripcion_marca">Marca</label>
+                        <input class="form-control" id="crear-descripcion_marca" name="descripcion_marca" type="text" maxlength="150" required/>
+                    </div>
+                    <button class="btn btn-success fw-bold" type="submit"><i class="fa-solid fa-plus"></i> Agregar</button>
+                </form>
+                <div class="configuracion-lista d-flex flex-column">
+                    <div class="configuracion-row d-flex flex-wrap align-items-end gap-2 border-bottom py-2" th:each="marca : ${marcas}">
+                        <form class="configuracion-editar d-flex flex-wrap align-items-end gap-2 flex-grow-1" th:action="@{/configuracion/marca/{id}(id=${marca.idMarca})}" method="post">
+                            <span class="configuracion-id badge text-bg-light border align-self-center" th:text="'#' + ${marca.idMarca}">#1</span>
+                            <div class="configuracion-campo d-flex flex-column flex-grow-1">
+                                <label class="form-label fw-semibold small text-success mb-1">Marca</label>
+                                <input class="form-control" name="descripcion_marca" type="text" maxlength="150" th:value="${marca.descripcionMarca}" required/>
+                            </div>
+                            <button type="submit" class="configuracion-btn-guardar btn btn-success btn-sm"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
+                        </form>
+                        <form class="configuracion-eliminar" th:action="@{/configuracion/marca/{id}/eliminar(id=${marca.idMarca})}" method="post"
+                              onsubmit="return confirm('¿Eliminar este registro? Si está en uso, la base de datos no lo permitirá.');">
+                            <button class="btn btn-outline-danger" type="submit" aria-label="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                        </form>
+                    </div>
+                    <div class="configuracion-vacio text-secondary small py-2" th:if="${#lists.isEmpty(marcas)}">No hay registros en este catálogo.</div>
+                </div>
+            </div>
+
+            <!-- Modelo -->
+            <div class="configuracion-panel flex-fill bg-white border rounded-3 shadow-sm p-3" th:if="${catalogoActual == 'modelo'}">
+                <div class="configuracion-panel-header border-bottom pb-2 mb-3">
+                    <div><h2 class="h5 fw-semibold mb-1">Modelo</h2><p class="small text-secondary mb-0">Modelos reutilizables para máquinas.</p></div>
+                </div>
+                <form class="configuracion-crear d-flex flex-wrap align-items-end gap-2 bg-success-subtle border rounded-3 p-3 mb-3" th:action="@{/configuracion/modelo}" method="post">
+                    <div class="configuracion-campo d-flex flex-column flex-grow-1">
+                        <label class="form-label fw-semibold small text-success mb-1" for="crear-descripcion_modelo">Modelo</label>
+                        <input class="form-control" id="crear-descripcion_modelo" name="descripcion_modelo" type="text" maxlength="150" required/>
+                    </div>
+                    <div class="configuracion-campo d-flex flex-column flex-grow-1">
+                        <label class="form-label fw-semibold small text-success mb-1" for="crear-marca">Marca</label>
+                        <select class="form-select" id="crear-marca" name="Marca_idMarca" required>
+                            <option value="">Seleccione una marca</option>
+                            <option th:each="marca : ${marcasOrdenadas}" th:value="${marca.idMarca}" th:text="${marca.descripcionMarca}"></option>
+                        </select>
+                    </div>
+                    <button class="btn btn-success fw-bold" type="submit"><i class="fa-solid fa-plus"></i> Agregar</button>
+                </form>
+                <div class="configuracion-lista d-flex flex-column">
+                    <div class="configuracion-row d-flex flex-wrap align-items-end gap-2 border-bottom py-2" th:each="modelo : ${modelos}">
+                        <form class="configuracion-editar d-flex flex-wrap align-items-end gap-2 flex-grow-1" th:action="@{/configuracion/modelo/{id}(id=${modelo.idModelo})}" method="post">
+                            <span class="configuracion-id badge text-bg-light border align-self-center" th:text="'#' + ${modelo.idModelo}">#1</span>
+                            <div class="configuracion-campo d-flex flex-column flex-grow-1">
+                                <label class="form-label fw-semibold small text-success mb-1">Modelo</label>
+                                <input class="form-control" name="descripcion_modelo" type="text" maxlength="150" th:value="${modelo.descripcionModelo}" required/>
+                            </div>
+                            <div class="configuracion-campo d-flex flex-column flex-grow-1">
+                                <label class="form-label fw-semibold small text-success mb-1">Marca</label>
+                                <select class="form-select" name="Marca_idMarca" required>
+                                    <option th:each="marca : ${marcasOrdenadas}" th:value="${marca.idMarca}" th:text="${marca.descripcionMarca}"
+                                            th:selected="${modelo.marca != null and modelo.marca.idMarca == marca.idMarca}"></option>
+                                </select>
+                            </div>
+                            <button type="submit" class="configuracion-btn-guardar btn btn-success btn-sm"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
+                        </form>
+                        <form class="configuracion-eliminar" th:action="@{/configuracion/modelo/{id}/eliminar(id=${modelo.idModelo})}" method="post"
+                              onsubmit="return confirm('¿Eliminar este registro? Si está en uso, la base de datos no lo permitirá.');">
+                            <button class="btn btn-outline-danger" type="submit" aria-label="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                        </form>
+                    </div>
+                    <div class="configuracion-vacio text-secondary small py-2" th:if="${#lists.isEmpty(modelos)}">No hay registros en este catálogo.</div>
+                </div>
+            </div>
+
+            <!-- Sedes -->
+            <div class="configuracion-panel flex-fill bg-white border rounded-3 shadow-sm p-3" th:if="${catalogoActual == 'sedes'}">
+                <div class="configuracion-panel-header border-bottom pb-2 mb-3">
+                    <div><h2 class="h5 fw-semibold mb-1">Sedes</h2><p class="small text-secondary mb-0">Sedes disponibles al registrar máquinas.</p></div>
+                </div>
+                <form class="configuracion-crear d-flex flex-wrap align-items-end gap-2 bg-success-subtle border rounded-3 p-3 mb-3" th:action="@{/configuracion/sede}" method="post">
+                    <div class="configuracion-campo d-flex flex-column flex-grow-1">
+                        <label class="form-label fw-semibold small text-success mb-1" for="crear-nombre_sede">Sede</label>
+                        <input class="form-control" id="crear-nombre_sede" name="nombre_sede" type="text" maxlength="150" required/>
+                    </div>
+                    <button class="btn btn-success fw-bold" type="submit"><i class="fa-solid fa-plus"></i> Agregar</button>
+                </form>
+                <div class="configuracion-lista d-flex flex-column">
+                    <div class="configuracion-row d-flex flex-wrap align-items-end gap-2 border-bottom py-2" th:each="sede : ${sedes}">
+                        <form class="configuracion-editar d-flex flex-wrap align-items-end gap-2 flex-grow-1" th:action="@{/configuracion/sede/{id}(id=${sede.idSede})}" method="post">
+                            <span class="configuracion-id badge text-bg-light border align-self-center" th:text="'#' + ${sede.idSede}">#1</span>
+                            <div class="configuracion-campo d-flex flex-column flex-grow-1">
+                                <label class="form-label fw-semibold small text-success mb-1">Sede</label>
+                                <input class="form-control" name="nombre_sede" type="text" maxlength="150" th:value="${sede.nombreSede}" required/>
+                            </div>
+                            <button type="submit" class="configuracion-btn-guardar btn btn-success btn-sm"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
+                        </form>
+                        <form class="configuracion-eliminar" th:action="@{/configuracion/sede/{id}/eliminar(id=${sede.idSede})}" method="post"
+                              onsubmit="return confirm('¿Eliminar este registro? Si está en uso, la base de datos no lo permitirá.');">
+                            <button class="btn btn-outline-danger" type="submit" aria-label="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                        </form>
+                    </div>
+                    <div class="configuracion-vacio text-secondary small py-2" th:if="${#lists.isEmpty(sedes)}">No hay registros en este catálogo.</div>
+                </div>
+            </div>
+
+            <!-- Ambientes -->
+            <div class="configuracion-panel flex-fill bg-white border rounded-3 shadow-sm p-3" th:if="${catalogoActual == 'ambientes'}">
+                <div class="configuracion-panel-header border-bottom pb-2 mb-3">
+                    <div><h2 class="h5 fw-semibold mb-1">Ambientes</h2><p class="small text-secondary mb-0">Ambientes de aprendizaje disponibles.</p></div>
+                </div>
+                <form class="configuracion-crear d-flex flex-wrap align-items-end gap-2 bg-success-subtle border rounded-3 p-3 mb-3" th:action="@{/configuracion/ambiente}" method="post">
+                    <div class="configuracion-campo d-flex flex-column flex-grow-1">
+                        <label class="form-label fw-semibold small text-success mb-1" for="crear-descripcion_ambiente">Ambiente</label>
+                        <input class="form-control" id="crear-descripcion_ambiente" name="descripcion_ambiente" type="text" maxlength="150" required/>
+                    </div>
+                    <div class="configuracion-campo d-flex flex-column flex-grow-1">
+                        <label class="form-label fw-semibold small text-success mb-1" for="crear-sede">Sede</label>
+                        <select class="form-select" id="crear-sede" name="Sede_idSede" required>
+                            <option value="">Seleccione una sede</option>
+                            <option th:each="sede : ${sedesOrdenadas}" th:value="${sede.idSede}" th:text="${sede.nombreSede}"></option>
+                        </select>
+                    </div>
+                    <button class="btn btn-success fw-bold" type="submit"><i class="fa-solid fa-plus"></i> Agregar</button>
+                </form>
+                <div class="configuracion-lista d-flex flex-column">
+                    <div class="configuracion-row d-flex flex-wrap align-items-end gap-2 border-bottom py-2" th:each="ambiente : ${ambientes}">
+                        <form class="configuracion-editar d-flex flex-wrap align-items-end gap-2 flex-grow-1" th:action="@{/configuracion/ambiente/{id}(id=${ambiente.idAmbientesDeAprendizaje})}" method="post">
+                            <span class="configuracion-id badge text-bg-light border align-self-center" th:text="'#' + ${ambiente.idAmbientesDeAprendizaje}">#1</span>
+                            <div class="configuracion-campo d-flex flex-column flex-grow-1">
+                                <label class="form-label fw-semibold small text-success mb-1">Ambiente</label>
+                                <input class="form-control" name="descripcion_ambiente" type="text" maxlength="150" th:value="${ambiente.descripcionAmbiente}" required/>
+                            </div>
+                            <div class="configuracion-campo d-flex flex-column flex-grow-1">
+                                <label class="form-label fw-semibold small text-success mb-1">Sede</label>
+                                <select class="form-select" name="Sede_idSede" required>
+                                    <option th:each="sede : ${sedesOrdenadas}" th:value="${sede.idSede}" th:text="${sede.nombreSede}"
+                                            th:selected="${ambiente.sede != null and ambiente.sede.idSede == sede.idSede}"></option>
+                                </select>
+                            </div>
+                            <button type="submit" class="configuracion-btn-guardar btn btn-success btn-sm"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
+                        </form>
+                        <form class="configuracion-eliminar" th:action="@{/configuracion/ambiente/{id}/eliminar(id=${ambiente.idAmbientesDeAprendizaje})}" method="post"
+                              onsubmit="return confirm('¿Eliminar este registro? Si está en uso, la base de datos no lo permitirá.');">
+                            <button class="btn btn-outline-danger" type="submit" aria-label="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                        </form>
+                    </div>
+                    <div class="configuracion-vacio text-secondary small py-2" th:if="${#lists.isEmpty(ambientes)}">No hay registros en este catálogo.</div>
+                </div>
+            </div>
+
+            <!-- Areas -->
+            <div class="configuracion-panel flex-fill bg-white border rounded-3 shadow-sm p-3" th:if="${catalogoActual == 'areas'}">
+                <div class="configuracion-panel-header border-bottom pb-2 mb-3">
+                    <div><h2 class="h5 fw-semibold mb-1">Áreas</h2><p class="small text-secondary mb-0">Áreas disponibles al registrar máquinas.</p></div>
+                </div>
+                <form class="configuracion-crear d-flex flex-wrap align-items-end gap-2 bg-success-subtle border rounded-3 p-3 mb-3" th:action="@{/configuracion/area}" method="post">
+                    <div class="configuracion-campo d-flex flex-column flex-grow-1">
+                        <label class="form-label fw-semibold small text-success mb-1" for="crear-nombre_area">Área</label>
+                        <input class="form-control" id="crear-nombre_area" name="nombre_area" type="text" maxlength="150" required/>
+                    </div>
+                    <div class="configuracion-campo d-flex flex-column flex-grow-1">
+                        <label class="form-label fw-semibold small text-success mb-1" for="crear-area-sede">Sede</label>
+                        <select class="form-select" id="crear-area-sede" name="Sede_idSede" required>
+                            <option value="">Seleccione una sede</option>
+                            <option th:each="sede : ${sedesOrdenadas}" th:value="${sede.idSede}" th:text="${sede.nombreSede}"></option>
+                        </select>
+                    </div>
+                    <button class="btn btn-success fw-bold" type="submit"><i class="fa-solid fa-plus"></i> Agregar</button>
+                </form>
+                <div class="configuracion-lista d-flex flex-column">
+                    <div class="configuracion-row d-flex flex-wrap align-items-end gap-2 border-bottom py-2" th:each="area : ${areas}">
+                        <form class="configuracion-editar d-flex flex-wrap align-items-end gap-2 flex-grow-1" th:action="@{/configuracion/area/{id}(id=${area.idArea})}" method="post">
+                            <span class="configuracion-id badge text-bg-light border align-self-center" th:text="'#' + ${area.idArea}">#1</span>
+                            <div class="configuracion-campo d-flex flex-column flex-grow-1">
+                                <label class="form-label fw-semibold small text-success mb-1">Área</label>
+                                <input class="form-control" name="nombre_area" type="text" maxlength="150" th:value="${area.nombreArea}" required/>
+                            </div>
+                            <div class="configuracion-campo d-flex flex-column flex-grow-1">
+                                <label class="form-label fw-semibold small text-success mb-1">Sede</label>
+                                <select class="form-select" name="Sede_idSede" required>
+                                    <option th:each="sede : ${sedesOrdenadas}" th:value="${sede.idSede}" th:text="${sede.nombreSede}"
+                                            th:selected="${area.sede != null and area.sede.idSede == sede.idSede}"></option>
+                                </select>
+                            </div>
+                            <button type="submit" class="configuracion-btn-guardar btn btn-success btn-sm"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
+                        </form>
+                        <form class="configuracion-eliminar" th:action="@{/configuracion/area/{id}/eliminar(id=${area.idArea})}" method="post"
+                              onsubmit="return confirm('¿Eliminar este registro? Si está en uso, la base de datos no lo permitirá.');">
+                            <button class="btn btn-outline-danger" type="submit" aria-label="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                        </form>
+                    </div>
+                    <div class="configuracion-vacio text-secondary small py-2" th:if="${#lists.isEmpty(areas)}">No hay registros en este catálogo.</div>
+                </div>
+            </div>
+
+            <!-- Tipo de mantenimiento -->
+            <div class="configuracion-panel flex-fill bg-white border rounded-3 shadow-sm p-3" th:if="${catalogoActual == 'tipo-mantenimiento'}">
+                <div class="configuracion-panel-header border-bottom pb-2 mb-3">
+                    <div><h2 class="h5 fw-semibold mb-1">Mantenimientos</h2><p class="small text-secondary mb-0">Opciones del selector de mantenimientos preventivos y correctivos.</p></div>
+                </div>
+                <form class="configuracion-crear d-flex flex-wrap align-items-end gap-2 bg-success-subtle border rounded-3 p-3 mb-3" th:action="@{/configuracion/tipo-mantenimiento}" method="post">
+                    <div class="configuracion-campo d-flex flex-column flex-grow-1">
+                        <label class="form-label fw-semibold small text-success mb-1" for="crear-descripcion_matenimiento">Tipo</label>
+                        <input class="form-control" id="crear-descripcion_matenimiento" name="descripcion_matenimiento" type="text" maxlength="45" required/>
+                    </div>
+                    <button class="btn btn-success fw-bold" type="submit"><i class="fa-solid fa-plus"></i> Agregar</button>
+                </form>
+                <div class="configuracion-lista d-flex flex-column">
+                    <div class="configuracion-row d-flex flex-wrap align-items-end gap-2 border-bottom py-2" th:each="tipoMant : ${tiposMantenimiento}">
+                        <form class="configuracion-editar d-flex flex-wrap align-items-end gap-2 flex-grow-1" th:action="@{/configuracion/tipo-mantenimiento/{id}(id=${tipoMant.idTipoManteniento})}" method="post">
+                            <span class="configuracion-id badge text-bg-light border align-self-center" th:text="'#' + ${tipoMant.idTipoManteniento}">#1</span>
+                            <div class="configuracion-campo d-flex flex-column flex-grow-1">
+                                <label class="form-label fw-semibold small text-success mb-1">Tipo</label>
+                                <input class="form-control" name="descripcion_matenimiento" type="text" maxlength="45" th:value="${tipoMant.descripcionMantenimiento}" required/>
+                            </div>
+                            <button type="submit" class="configuracion-btn-guardar btn btn-success btn-sm"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
+                        </form>
+                        <form class="configuracion-eliminar" th:action="@{/configuracion/tipo-mantenimiento/{id}/eliminar(id=${tipoMant.idTipoManteniento})}" method="post"
+                              onsubmit="return confirm('¿Eliminar este registro? Si está en uso, la base de datos no lo permitirá.');">
+                            <button class="btn btn-outline-danger" type="submit" aria-label="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                        </form>
+                    </div>
+                    <div class="configuracion-vacio text-secondary small py-2" th:if="${#lists.isEmpty(tiposMantenimiento)}">No hay registros en este catálogo.</div>
+                </div>
+            </div>
+
+            <!-- Tipos de manuales -->
+            <div class="configuracion-panel flex-fill bg-white border rounded-3 shadow-sm p-3" th:if="${catalogoActual == 'tipos-manuales'}">
+                <div class="configuracion-panel-header border-bottom pb-2 mb-3">
+                    <div><h2 class="h5 fw-semibold mb-1">Tipos de manuales</h2><p class="small text-secondary mb-0">Tipos usados al registrar manuales.</p></div>
+                </div>
+                <form class="configuracion-crear d-flex flex-wrap align-items-end gap-2 bg-success-subtle border rounded-3 p-3 mb-3" th:action="@{/configuracion/tipos-manuales}" method="post">
+                    <div class="configuracion-campo d-flex flex-column flex-grow-1">
+                        <label class="form-label fw-semibold small text-success mb-1" for="crear-descripcion_manual">Tipo de manual</label>
+                        <input class="form-control" id="crear-descripcion_manual" name="descripcion_manual" type="text" maxlength="45" required/>
+                    </div>
+                    <button class="btn btn-success fw-bold" type="submit"><i class="fa-solid fa-plus"></i> Agregar</button>
+                </form>
+                <div class="configuracion-lista d-flex flex-column">
+                    <div class="configuracion-row d-flex flex-wrap align-items-end gap-2 border-bottom py-2" th:each="tipoManual : ${tiposManual}">
+                        <form class="configuracion-editar d-flex flex-wrap align-items-end gap-2 flex-grow-1" th:action="@{/configuracion/tipos-manuales/{id}(id=${tipoManual.idTiposManuales})}" method="post">
+                            <span class="configuracion-id badge text-bg-light border align-self-center" th:text="'#' + ${tipoManual.idTiposManuales}">#1</span>
+                            <div class="configuracion-campo d-flex flex-column flex-grow-1">
+                                <label class="form-label fw-semibold small text-success mb-1">Tipo de manual</label>
+                                <input class="form-control" name="descripcion_manual" type="text" maxlength="45" th:value="${tipoManual.descripcionManual}" required/>
+                            </div>
+                            <button type="submit" class="configuracion-btn-guardar btn btn-success btn-sm"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
+                        </form>
+                        <form class="configuracion-eliminar" th:action="@{/configuracion/tipos-manuales/{id}/eliminar(id=${tipoManual.idTiposManuales})}" method="post"
+                              onsubmit="return confirm('¿Eliminar este registro? Si está en uso, la base de datos no lo permitirá.');">
+                            <button class="btn btn-outline-danger" type="submit" aria-label="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                        </form>
+                    </div>
+                    <div class="configuracion-vacio text-secondary small py-2" th:if="${#lists.isEmpty(tiposManual)}">No hay registros en este catálogo.</div>
+                </div>
+            </div>
+
+            <!-- Ubicaciones: bitacora de solo lectura, la llena sola la reubicacion aprobada -->
+            <div class="configuracion-panel flex-fill bg-white border rounded-3 shadow-sm p-3" th:if="${catalogoActual == 'ubicaciones'}">
+                <div class="configuracion-panel-header border-bottom pb-2 mb-3">
+                    <div><h2 class="h5 fw-semibold mb-1">Ubicaciones</h2><p class="small text-secondary mb-0">Bitácora de movimientos de máquinas. Se registra sola al aprobar una reubicación, no es editable.</p></div>
+                </div>
+                <div class="configuracion-lista d-flex flex-column">
+                    <div class="configuracion-row configuracion-row-lectura d-flex flex-wrap align-items-end gap-2 border-bottom py-2" th:each="ubicacion : ${ubicaciones}">
+                        <span class="configuracion-id badge text-bg-light border align-self-center" th:text="'#' + ${ubicacion.idUbicacionMaquina}">#1</span>
+                        <div class="configuracion-campo d-flex flex-column flex-grow-1">
+                            <label class="form-label fw-semibold small text-success mb-1">Fecha</label>
+                            <span th:text="${ubicacion.fecha}"></span>
+                        </div>
+                        <div class="configuracion-campo d-flex flex-column flex-grow-1">
+                            <label class="form-label fw-semibold small text-success mb-1">Ambiente</label>
+                            <span th:text="${ubicacion.ambiente}"></span>
+                        </div>
+                    </div>
+                    <div class="configuracion-vacio text-secondary small py-2" th:if="${#lists.isEmpty(ubicaciones)}">No hay registros en este catálogo.</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+        </main>
+        <footer class="border-top bg-white small text-secondary text-center py-3 d-print-none">&copy; 2026 FIMACOR &middot; Sistema de Control de Máquinas Textiles &middot; CMTC &ndash; SENA</footer>
+    </div>
+</div>
+<th:block th:replace="~{fragments/nav :: scripts}"></th:block>
+</body>
+</html>

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes"/>
+    <title>FIMACOR | Mantenimientos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous"/>
+    <link rel="stylesheet" th:href="@{/Estyle.css/fimacor-theme.css}"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+" crossorigin="anonymous"/>
+    <script th:src="@{/Script.js/Maquinas_registradas.js}" defer></script>
+</head>
+
+<body class="mantenimientospreventivos-form bg-body-tertiary" th:attr="data-fimacor-sin-export=${verSoloAsignados}">
+    <div class="row g-0 min-vh-100">
+    <th:block th:replace="~{fragments/nav :: sidebar}"></th:block>
+    <div class="col-12 col-lg-9 col-xxl-10 d-flex flex-column">
+        <th:block th:replace="~{fragments/nav :: topbar('Mantenimientos')}"></th:block>
+        <main class="flex-grow-1 px-3 px-md-4 px-xxl-5 py-4">
+
+    <div class="mantenimiento-page mantenimiento-page-unificada">
+      <div class="mantenimiento-main-card">
+        <div class="mantenimiento-main-header d-flex justify-content-between align-items-center gap-3 mb-3">
+          <div>
+            <h2 class="h2mantenimientospreventivos h3 fw-bold mb-1" th:text="${verSoloAsignados} ? 'Mis mantenimientos asignados' : 'Mantenimiento de Máquina'">Mantenimiento</h2>
+          </div>
+        </div>
+
+      <details th:unless="${verSoloAsignados}" class="mantenimiento-form-card mantenimiento-form-collapsible mb-4" th:open="${param.error != null}">
+        <summary class="mantenimiento-form-summary position-relative d-flex flex-column bg-success text-white rounded-3 shadow-sm ps-4 pe-5 py-3 mx-auto col-12 col-md-8 col-lg-5">
+          <span class="fw-bold fs-6">Programar nuevo mantenimiento</span>
+          <small class="opacity-75 fw-semibold">Fecha, hora, responsable y evidencia</small>
+        <span class="position-absolute top-50 end-0 translate-middle-y me-3 d-inline-flex align-items-center justify-content-center rounded-circle bg-white bg-opacity-25 fw-bold px-2" aria-hidden="true">+</span></summary>
+        <div class="mantenimiento-form-body bg-white border rounded-4 shadow-sm p-3 p-md-4 mt-3">
+          <div class="mantenimiento-page-header d-flex justify-content-between align-items-center gap-3 mb-3">
+            <div class="headermantenimientospreventivos">
+              <h2 class="h2mantenimientospreventivos h3 fw-bold mb-1">Programación de Mantenimientos</h2>
+              <p class="form-subtitle small text-secondary mb-0">Asigna un técnico y deja la tarea registrada para seguimiento.</p>
+            </div>
+          </div>
+
+          <form th:action="@{/mantenimiento}" method="post" class="formmantenimientospreventivos row row-cols-1 row-cols-md-2 g-3" autocomplete="off" enctype="multipart/form-data">
+          <div class="alertamanuales-error mantenimiento-form-alert alert alert-danger py-2 w-100" th:if="${param.error != null}">
+            No se pudo programar el mantenimiento. Revisa los datos o confirma que exista un técnico registrado.
+          </div>
+
+          <div class="input-groupmantenimientospreventivos d-flex flex-column">
+            <label class="form-label fw-semibold small text-success mb-1" for="maquina">Máquina programada</label>
+            <select class="form-select" id="maquina" name="maquina" required data-buscable data-buscable-texto="Buscar máquina por código o nombre">
+              <option value="">Seleccione una máquina</option>
+              <option th:each="m : ${maquinas}" th:value="${m.idMaquinas}"
+                      th:attr="data-sede=${m.sede != null ? m.sede.idSede : 0},data-area=${m.area},data-ambiente=${m.ambiente != null ? m.ambiente.idAmbientesDeAprendizaje : 0}"
+                      th:text="${m.codigoSena} + ' - ' + ${m.descripcion}"></option>
+            </select>
+          </div>
+
+          <div class="input-groupmantenimientospreventivos d-flex flex-column">
+            <label class="form-label fw-semibold small text-success mb-1" for="fecha">Fecha programada</label>
+            <input class="form-control" type="date" id="fecha" name="fecha" required />
+          </div>
+
+          <div class="input-groupmantenimientospreventivos d-flex flex-column">
+            <label class="form-label fw-semibold small text-success mb-1" for="hora">Hora programada</label>
+            <input class="form-control" type="time" id="hora" name="hora" required />
+          </div>
+
+          <div class="input-groupmantenimientospreventivos d-flex flex-column">
+            <label class="form-label fw-semibold small text-success mb-1" for="frecuencia">Frecuencia</label>
+            <select class="form-select" id="frecuencia" name="frecuencia" required>
+              <option value="">Seleccione una frecuencia</option>
+              <option value="mensual">Mensual</option>
+              <option value="trimestral">Trimestral</option>
+              <option value="semestral">Semestral</option>
+              <option value="anual">Anual</option>
+            </select>
+          </div>
+
+          <div class="input-groupmantenimientospreventivos d-flex flex-column">
+            <label class="form-label fw-semibold small text-success mb-1" for="tipo_mantenimiento">Tipo de mantenimiento</label>
+            <select class="form-select" id="tipo_mantenimiento" name="tipo_mantenimiento" required autocomplete="off">
+              <option value="" selected disabled>Seleccione el tipo</option>
+              <option th:each="t : ${tipos}" th:value="${t.idTipoManteniento}" th:text="${t.descripcionMantenimiento}"></option>
+            </select>
+          </div>
+
+          <div class="input-groupmantenimientospreventivos d-flex flex-column">
+            <label class="form-label fw-semibold small text-success mb-1" for="responsable">Responsable asignado</label>
+            <select class="form-select" id="responsable" name="responsable" required>
+              <option value="">Seleccione un responsable</option>
+              <option th:each="tec : ${tecnicos}" th:value="${tec.idUsuario}" th:text="${tec.nombre} + ' ' + ${tec.apellido} + ' - ' + ${tec.correo}"></option>
+            </select>
+          </div>
+
+          <div class="input-groupmantenimientospreventivos mantenimiento-field-full d-flex flex-column w-100">
+            <label class="form-label fw-semibold small text-success mb-1" for="tareas">Tareas a realizar</label>
+            <textarea class="form-control" id="tareas" name="tareas" placeholder="Ejemplo: limpieza, ajuste, lubricación y revisión de seguridad" required></textarea>
+          </div>
+
+          <div class="input-groupmantenimientospreventivos mantenimiento-field-full mantenimiento-evidencia-box d-flex flex-column w-100">
+            <label class="form-label fw-semibold small text-success mb-1" for="evidenciaMantenimiento">Foto de repuestos o de la máquina</label>
+            <input class="form-control" type="file" id="evidenciaMantenimiento" name="evidenciaMantenimiento" accept="image/png,image/jpeg,image/webp" multiple />
+            <small class="form-text">Opcional. Adjunta una o varias fotos claras si la máquina necesita repuestos, presenta daño visible o requiere evidencia para el técnico.</small>
+          </div>
+
+          <div class="buttonmantenimientospreventivos mantenimiento-actions w-100">
+            <button type="submit" class="btnmantenimientospreventivos btn btn-success fw-bold" th:disabled="${maquinas.isEmpty() or tipos.isEmpty() or tecnicos.isEmpty()}">Programar mantenimiento</button>
+          </div>
+          </form>
+
+          <div class="extra-optionsmantenimientospreventivos mt-3">
+            <a th:href="@{/mantenimiento/historial}" class="link-success fw-semibold">Ver historial de mantenimientos</a>
+          </div>
+        </div>
+      </details>
+
+      <section class="mantenimiento-listado-card mantenimiento-table-card bg-white border rounded-4 shadow-sm p-3 mb-3">
+        <div class="mantenimiento-listado-header d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3">
+          <h3 class="h5 fw-semibold mb-1" th:text="${verSoloAsignados} ? 'Mis mantenimientos asignados' : 'Mantenimientos programados'">Mantenimientos</h3>
+          <span class="badge rounded-pill bg-success-subtle text-success-emphasis fs-6" th:text="${totalPendientes} + ' pendientes / ' + ${mantenimientos.size()} + ' registros'">0 pendientes</span>
+        </div>
+        <p class="mantenimiento-asignados-aviso alert alert-info py-2" th:if="${verSoloAsignados}">
+          Se muestran solo los mantenimientos asignados a <strong th:text="${usuarioActual.nombre} + ' ' + ${usuarioActual.apellido}">técnico</strong>.
+        </p>
+        <div class="admin-actions mantenimiento-gestion-toolbar d-flex flex-wrap justify-content-md-end align-items-center gap-2 mb-3" th:if="${!mantenimientos.isEmpty() and !verSoloAsignados}">
+          <label class="form-label fw-semibold small text-success mb-0" for="mantenimientoGestionSelector">Mantenimiento</label>
+          <select class="form-select form-select-sm w-auto" id="mantenimientoGestionSelector">
+            <option th:each="m : ${mantenimientos}" th:value="'gestionMantenimiento' + ${m.idMantenimiento}"
+                    th:text="(${m.maquina != null and m.maquina.codigoSena != null and !m.maquina.codigoSena.isBlank()} ? ${m.maquina.codigoSena} : 'Sin código') + ' - ' + (${m.maquina != null} ? ${m.maquina.descripcion} : 'Máquina sin código') + ' | ' + ${m.fechaMantenimiento}"></option>
+          </select>
+          <button type="button" class="btnmaquinasregistradas btn-editarmaquinasregistradas btn btn-sm fw-bold btn-success" data-abrir-gestion-mantenimiento>
+            Gestionar mantenimiento
+          </button>
+        </div>
+        <div class="table-responsivehistorialmantenimiento table-responsive bg-white border rounded-4 shadow-sm">
+          <table class="tablehistorialmantenimiento table table-hover align-middle text-center mb-0">
+            <thead>
+              <tr>
+                <th class="bg-body-tertiary text-secondary text-uppercase small fw-semibold py-3">Máquina</th><th class="bg-body-tertiary text-secondary text-uppercase small fw-semibold py-3">Tipo</th><th class="bg-body-tertiary text-secondary text-uppercase small fw-semibold py-3">Fecha</th><th class="bg-body-tertiary text-secondary text-uppercase small fw-semibold py-3">Hora</th><th class="bg-body-tertiary text-secondary text-uppercase small fw-semibold py-3">Próximo</th>
+                <th class="bg-body-tertiary text-secondary text-uppercase small fw-semibold py-3">Días</th><th class="bg-body-tertiary text-secondary text-uppercase small fw-semibold py-3">Detalle</th><th class="bg-body-tertiary text-secondary text-uppercase small fw-semibold py-3">Evidencia</th><th class="bg-body-tertiary text-secondary text-uppercase small fw-semibold py-3">Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:if="${mantenimientos.isEmpty()}"><td colspan="9" class="tabla-vacia text-secondary text-center py-3">No hay mantenimientos programados.</td></tr>
+              <tr th:each="m : ${mantenimientos}" class="mantenimiento-row-info" data-admin-row
+                  th:attr="data-modal-gestion='gestionMantenimiento' + ${m.idMantenimiento}">
+                <td>
+                  <span class="mantenimiento-maquina-codigo d-block fw-bold" th:text="${m.maquina != null and m.maquina.codigoSena != null and !m.maquina.codigoSena.isBlank()} ? ${m.maquina.codigoSena} : 'Sin código'"></span>
+                  <span class="mantenimiento-maquina-nombre d-block small text-secondary" th:text="${m.maquina != null} ? ${m.maquina.descripcion} : 'Máquina sin código'"></span>
+                </td>
+                <td th:text="${m.tipoMantenimiento != null ? m.tipoMantenimiento.descripcionMantenimiento : 'Tipo desconocido'}">tipo</td>
+                <td th:text="${m.fechaMantenimiento}">fecha</td>
+                <td th:text="${m.horaProgramada != null and !m.horaProgramada.isBlank()} ? ${m.horaProgramada} : 'Sin hora'">hora</td>
+                <td th:text="${m.fechaProximoMantenimiento}">proximo</td>
+                <td><button type="button" class="mantenimiento-calendario-btn btn btn-sm btn-outline-success text-nowrap" th:text="${T(com.fimacor.mantenimiento.util.MantenimientoTexto).diasRestantes(m, hoy)}">dias</button></td>
+                <td th:text="${m.tareas}">tareas</td>
+                <td>
+                  <button type="button" th:if="${!T(com.fimacor.mantenimiento.util.MantenimientoTexto).evidencias(m).isEmpty()}"
+                          class="mantenimiento-evidencia-ver no-abrir-modal btn btn-sm btn-outline-success text-nowrap"
+                          th:attr="data-abrir-evidencia='evidenciaFotos' + ${m.idMantenimiento}"
+                          th:text="'Ver fotos (' + ${T(com.fimacor.mantenimiento.util.MantenimientoTexto).evidencias(m).size()} + ')'">Ver fotos</button>
+                  <span th:if="${T(com.fimacor.mantenimiento.util.MantenimientoTexto).evidencias(m).isEmpty()}" class="mantenimiento-sin-evidencia small text-secondary">Sin foto</span>
+                </td>
+                <td><span class="estado-historial" th:classappend="${T(com.fimacor.mantenimiento.util.MantenimientoTexto).estadoClase(m, hoy)}" th:text="${T(com.fimacor.mantenimiento.util.MantenimientoTexto).estado(m, hoy)}">estado</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <div th:each="m : ${mantenimientos}" class="modalmaquina modal d-block d-none bg-dark bg-opacity-75" th:id="'gestionMantenimiento' + ${m.idMantenimiento}">
+        <div class="modalmaquina-contenido modal-dialog modal-xl modal-content border-0 rounded-4 shadow-lg p-3 p-md-4">
+          <button type="button" class="modalmaquina-cerrar btn-close position-absolute top-0 end-0 m-3" aria-label="Cerrar"></button>
+          <div class="modalmaquina-header border-bottom pb-2 mb-3 pe-5">
+            <h3 class="h5 fw-semibold mb-1">Gestionar mantenimiento</h3>
+            <p class="mb-0 text-secondary" th:text="(${m.maquina != null and m.maquina.codigoSena != null and !m.maquina.codigoSena.isBlank()} ? ${m.maquina.codigoSena} : 'Sin código') + ' - ' + (${m.maquina != null} ? ${m.maquina.descripcion} : 'Máquina sin código')"></p>
+          </div>
+
+          <div class="modalmaquina-grid row row-cols-1 row-cols-lg-2 g-3 small">
+            <div class="modalmaquina-bloque border rounded-3 p-3">
+              <h4 class="h6 fw-bold text-success border-bottom pb-2 mb-2">Información actual</h4>
+              <p class="mb-1"><strong>Tipo:</strong> <span th:text="${m.tipoMantenimiento != null ? m.tipoMantenimiento.descripcionMantenimiento : 'Tipo desconocido'}"></span></p>
+              <p class="mb-1"><strong>Responsable:</strong> <span th:text="${m.tecnico != null} ? (${m.tecnico.nombre} + ' ' + ${m.tecnico.apellido} + ' - ' + ${m.tecnico.correo}) : 'No registrado'"></span></p>
+              <p class="mb-1"><strong>Fecha programada:</strong> <span th:text="${m.fechaMantenimiento}"></span></p>
+              <p class="mb-1"><strong>Próximo mantenimiento:</strong> <span th:text="${m.fechaProximoMantenimiento}"></span></p>
+              <p class="mb-1"><strong>Frecuencia:</strong> <span th:text="${m.frecuencia}"></span></p>
+            </div>
+          </div>
+
+          <form th:if="${!verSoloAsignados}" th:action="@{/mantenimiento/{id}/tecnico(id=${m.idMantenimiento})}" method="post" class="rolespermisos-modal-form mantenimiento-form-opcion border-top mt-3 pt-3">
+            <h4 class="h6 fw-bold text-success border-bottom pb-2 mb-2">Cambiar técnico</h4>
+            <div class="rolespermisos-campos-permiso row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3 small">
+              <div>
+                <label class="form-label fw-semibold small text-success mb-1">Responsable</label>
+                <select class="form-select" name="responsable" required>
+                  <option th:each="tec : ${tecnicos}" th:value="${tec.idUsuario}"
+                          th:selected="${m.tecnico != null and m.tecnico.idUsuario == tec.idUsuario}"
+                          th:text="${tec.nombre} + ' ' + ${tec.apellido} + ' - ' + ${tec.correo}"></option>
+                </select>
+              </div>
+            </div>
+            <button type="submit" class="btn-agregar rolespermisos-submit btn btn-success fw-bold mt-3">Cambiar técnico</button>
+          </form>
+
+          <form th:if="${!verSoloAsignados}" th:action="@{/mantenimiento/{id}/reprogramar(id=${m.idMantenimiento})}" method="post" class="rolespermisos-modal-form mantenimiento-form-opcion border-top mt-3 pt-3">
+            <h4 class="h6 fw-bold text-success border-bottom pb-2 mb-2">Reprogramar</h4>
+            <div class="rolespermisos-campos-permiso row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3 small">
+              <div><label class="form-label fw-semibold small text-success mb-1">Fecha programada</label><input class="form-control" type="date" name="fecha" th:value="${m.fechaMantenimiento}" required/></div>
+              <div><label class="form-label fw-semibold small text-success mb-1">Próximo mantenimiento</label><input class="form-control" type="date" name="fecha_proxima" th:value="${m.fechaProximoMantenimiento}" required/></div>
+              <div>
+                <label class="form-label fw-semibold small text-success mb-1">Frecuencia</label>
+                <select class="form-select" name="frecuencia" required>
+                  <option value="mensual" th:selected="${m.frecuencia == 'mensual'}">Mensual</option>
+                  <option value="trimestral" th:selected="${m.frecuencia == 'trimestral'}">Trimestral</option>
+                  <option value="semestral" th:selected="${m.frecuencia == 'semestral'}">Semestral</option>
+                  <option value="anual" th:selected="${m.frecuencia == 'anual'}">Anual</option>
+                </select>
+              </div>
+              <div class="mantenimiento-field-full w-100"><label class="form-label fw-semibold small text-success mb-1">Tareas</label><textarea class="form-control" name="tareas" required th:text="${m.tareas}"></textarea></div>
+            </div>
+            <button type="submit" class="btn-agregar rolespermisos-submit btn btn-success fw-bold mt-3">Guardar reprogramación</button>
+          </form>
+
+          <form th:if="${!verSoloAsignados}" th:action="@{/mantenimiento/cancelar}" method="post" class="rolespermisos-modal-form mantenimiento-form-opcion border-top mt-3 pt-3"
+                onsubmit="return confirm('Cancelar este mantenimiento. ¿Continuar?');">
+            <h4 class="h6 fw-bold text-success border-bottom pb-2 mb-2">Cancelar mantenimiento</h4>
+            <input type="hidden" name="idMantenimiento" th:value="${m.idMantenimiento}"/>
+            <button type="submit" class="btnmaquinasregistradas btn-eliminarmaquinasregistradas btn btn-sm fw-bold btn-danger">Cancelar mantenimiento</button>
+          </form>
+        </div>
+      </div>
+
+      <div th:each="m : ${mantenimientos}" th:if="${!T(com.fimacor.mantenimiento.util.MantenimientoTexto).evidencias(m).isEmpty()}"
+           class="modalmaquina modal d-block d-none bg-dark bg-opacity-75" th:id="'evidenciaFotos' + ${m.idMantenimiento}">
+        <div class="modalmaquina-contenido modal-dialog modal-xl modal-content border-0 rounded-4 shadow-lg p-3 p-md-4">
+          <button type="button" class="modalmaquina-cerrar btn-close position-absolute top-0 end-0 m-3" aria-label="Cerrar"></button>
+          <div class="modalmaquina-header border-bottom pb-2 mb-3 pe-5">
+            <h3 class="h5 fw-semibold mb-1">Evidencia del mantenimiento</h3>
+            <p class="mb-0 text-secondary" th:text="(${m.maquina != null and m.maquina.codigoSena != null and !m.maquina.codigoSena.isBlank()} ? ${m.maquina.codigoSena} : 'Sin código') + ' - ' + (${m.maquina != null} ? ${m.maquina.descripcion} : 'Máquina sin código')"></p>
+          </div>
+          <div class="mantenimiento-evidencia-galeria d-flex flex-wrap gap-3">
+            <a th:each="ruta, iter : ${T(com.fimacor.mantenimiento.util.MantenimientoTexto).evidencias(m)}"
+               th:href="@{/mantenimiento/evidencia/{a}(a=${ruta})}" target="_blank" class="mantenimiento-evidencia-miniatura text-center text-decoration-none link-success small">
+              <img th:src="@{/mantenimiento/evidencia/{a}(a=${ruta})}" th:alt="'Foto ' + ${iter.count}" loading="lazy" width="180" height="135" class="d-block img-thumbnail object-fit-cover mb-1" />
+              <span th:text="'Foto ' + ${iter.count}">Foto</span>
+            </a>
+          </div>
+        </div>
+      </div>
+      </div>
+    </div>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const selector = document.getElementById("mantenimientoGestionSelector");
+        const boton = document.querySelector("[data-abrir-gestion-mantenimiento]");
+        if (selector && boton) {
+          boton.addEventListener("click", function () {
+            const modal = document.getElementById(selector.value);
+            if (modal) {
+              if (modal.parentElement !== document.body) {
+                document.body.appendChild(modal);
+              }
+              modal.classList.add("mostrar");
+              modal.classList.remove("d-none");
+              document.body.classList.add("modalmaquina-abierto");
+              const contenido = modal.querySelector(".modalmaquina-contenido");
+              if (contenido) contenido.scrollTop = 0;
+            }
+          });
+        }
+
+        document.querySelectorAll("[data-abrir-evidencia]").forEach(function (boton) {
+          boton.addEventListener("click", function (evento) {
+            evento.stopPropagation();
+            const modal = document.getElementById(boton.dataset.abrirEvidencia);
+            if (!modal) return;
+            if (modal.parentElement !== document.body) {
+              document.body.appendChild(modal);
+            }
+            modal.classList.add("mostrar");
+            modal.classList.remove("d-none");
+            document.body.classList.add("modalmaquina-abierto");
+            const contenido = modal.querySelector(".modalmaquina-contenido");
+            if (contenido) contenido.scrollTop = 0;
+          });
+        });
+      });
+
+      const fecha = document.getElementById("fecha");
+      const hoy = new Date().toISOString().split("T")[0];
+
+      fecha.value = hoy;
+      fecha.min = hoy;
+      fecha.max = hoy;
+    </script>
+        </main>
+        <footer class="border-top bg-white small text-secondary text-center py-3 d-print-none">&copy; 2026 FIMACOR &middot; Sistema de Control de Máquinas Textiles &middot; CMTC &ndash; SENA</footer>
+    </div>
+</div>
+<th:block th:replace="~{fragments/nav :: scripts}"></th:block>
+<script th:src="@{/Script.js/fimacor-buscar-select.js}"></script>
+</body>
+</html>

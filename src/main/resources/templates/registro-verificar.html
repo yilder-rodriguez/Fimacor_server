@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <title>FIMACOR | Verificar Registro</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" th:href="@{/Estyle.css/fimacor-theme.css}">
+  <script th:src="@{/Script.js/Fimacor_effects.js}" defer></script>
+  <script th:src="@{/Script.js/Verificar_registro.js}" defer></script>
+</head>
+<body class="verificarregistro-form d-flex align-items-center justify-content-center min-vh-100 bg-dark p-3">
+
+  <div class="verificarregistro-container col-12 col-sm-9 col-md-7 col-lg-5 col-xl-4 bg-body-tertiary rounded-4 shadow-lg border-top border-4 border-success px-4 py-4 px-md-5">
+
+    <div class="text-center mb-2">
+      <img alt="Logo SENA" th:src="@{/Img/Sena.png}" width="96" height="96" class="object-fit-contain"/>
+    </div>
+
+    <h2 class="h3 text-success text-center mb-2">Verificar Registro</h2>
+    <p class="small text-secondary text-center mb-4">Ingresa el código de 6 dígitos enviado a tu correo electrónico para activar tu cuenta</p>
+
+    <div id="mensajes"></div>
+
+    <form th:action="@{/registro/verificar}" method="post" id="formVerificar">
+      <input type="hidden" name="correo" id="correo" th:value="${param.correo != null ? param.correo[0] : ''}"/>
+      <input type="hidden" name="nombre" id="nombre" th:value="${param.nombre != null ? param.nombre[0] : ''}"/>
+      <input type="hidden" name="apellido" id="apellido" th:value="${param.apellido != null ? param.apellido[0] : ''}"/>
+      <input type="hidden" name="documento" id="documento" th:value="${param.documento != null ? param.documento[0] : ''}"/>
+      <input type="hidden" name="telefono" id="telefono" th:value="${param.telefono != null ? param.telefono[0] : ''}"/>
+      <input type="hidden" name="contrasena" id="contrasena" th:value="${param.contrasena != null ? param.contrasena[0] : ''}"/>
+      <input type="hidden" name="rol" id="rol" th:value="${param.rol != null ? param.rol[0] : ''}"/>
+      <input type="hidden" name="tipoDoc" id="tipoDoc" th:value="${param.tipoDoc != null ? param.tipoDoc[0] : ''}"/>
+
+      <div class="mb-4">
+        <label for="codigo" class="form-label small fw-bold text-success mb-1">
+          Código de verificación
+        </label>
+        <input
+          type="text"
+          id="codigo"
+          name="codigo"
+          class="form-control py-2"
+          placeholder="Ejemplo: 123456"
+          maxlength="6"
+          autocomplete="off"
+          required
+        />
+      </div>
+
+      <div class="d-grid">
+        <button type="submit" class="btn btn-success fw-bold py-2">
+          Verificar y Registrar
+        </button>
+      </div>
+    </form>
+
+    <form th:action="@{/registro/reenviar}" method="post" id="formReenviar" class="d-grid mt-2">
+      <input type="hidden" name="correo" id="correoReenviar" th:value="${param.correo != null ? param.correo[0] : ''}"/>
+      <input type="hidden" name="nombre" id="nombreReenviar" th:value="${param.nombre != null ? param.nombre[0] : ''}"/>
+      <input type="hidden" name="apellido" id="apellidoReenviar" th:value="${param.apellido != null ? param.apellido[0] : ''}"/>
+      <input type="hidden" name="documento" id="documentoReenviar" th:value="${param.documento != null ? param.documento[0] : ''}"/>
+      <input type="hidden" name="telefono" id="telefonoReenviar" th:value="${param.telefono != null ? param.telefono[0] : ''}"/>
+      <input type="hidden" name="contrasena" id="contrasenaReenviar" th:value="${param.contrasena != null ? param.contrasena[0] : ''}"/>
+      <input type="hidden" name="rol" id="rolReenviar" th:value="${param.rol != null ? param.rol[0] : ''}"/>
+      <input type="hidden" name="tipoDoc" id="tipoDocReenviar" th:value="${param.tipoDoc != null ? param.tipoDoc[0] : ''}"/>
+
+      <button type="submit" class="btn btn-outline-success fw-bold py-2">
+        Reenviar código
+      </button>
+    </form>
+
+    <div class="text-center mt-3">
+      <a th:href="@{/registro}" class="link-success fw-bold small text-decoration-none">
+        Volver al registro
+      </a>
+    </div>
+
+    <footer class="text-center small text-secondary mt-4">
+      &copy; 2026 FIMACOR - Sistema de Control de Máquinas Textiles
+    </footer>
+
+  </div>
+
+</body>
+</html>

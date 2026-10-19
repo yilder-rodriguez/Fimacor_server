@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- Filtro y seleccion rapida. Va dentro de un contenedor con data-matriz-permisos (ver Permisos.js). -->
+<th:block th:fragment="herramientas">
+    <div class="input-group input-group-sm w-auto flex-grow-1 flex-sm-grow-0">
+        <span class="input-group-text bg-body-tertiary"><i class="bi bi-search" aria-hidden="true"></i></span>
+        <input type="search" class="form-control" placeholder="Filtrar permisos" aria-label="Filtrar permisos" data-filtro-permisos/>
+    </div>
+    <div class="btn-group btn-group-sm" role="group" aria-label="Selección rápida">
+        <button type="button" class="btn btn-light border" data-marcar="todos">Todos</button>
+        <button type="button" class="btn btn-light border" data-marcar="ninguno">Ninguno</button>
+    </div>
+</th:block>
+
+<!-- Permisos agrupados por modulo, con interruptor por permiso y por modulo completo.
+     prefijo: para ids unicos. asignados: Set de ids marcados (o null). columnas: clases row-cols-*. -->
+<th:block th:fragment="modulos(prefijo, asignados, columnas)">
+    <div class="row g-3" th:classappend="${columnas}">
+        <div class="col" th:each="modulo : ${modulosPermisos}" data-modulo>
+            <div class="border rounded-3 h-100 overflow-hidden">
+                <div class="d-flex align-items-center gap-2 px-3 py-2 bg-body-tertiary border-bottom">
+                    <i class="bi text-success" th:classappend="${modulo.icono()}" aria-hidden="true"></i>
+                    <strong class="small flex-grow-1" th:text="${modulo.nombre()}">Módulo</strong>
+                    <span class="badge rounded-pill bg-white text-secondary-emphasis border" data-contador-modulo>0/0</span>
+                    <div class="form-check form-switch mb-0 ms-1">
+                        <input class="form-check-input" type="checkbox" role="switch" data-toggle-modulo
+                               th:attr="aria-label='Marcar todo ' + ${modulo.nombre()}"/>
+                    </div>
+                </div>
+                <ul class="list-unstyled mb-0 p-2">
+                    <li th:each="permiso : ${modulo.permisos()}" data-permiso-item
+                        th:attr="data-texto=${#strings.toLowerCase(permiso.descripcion + ' ' + permiso.codigoPermiso)}">
+                        <div class="form-check form-switch d-flex align-items-start gap-2 rounded-2 px-2 py-2 mb-0">
+                            <input class="form-check-input flex-shrink-0 ms-0 mt-1" type="checkbox" role="switch" name="permisos"
+                                   th:id="${prefijo} + '-' + ${permiso.idPermiso}" th:value="${permiso.idPermiso}"
+                                   th:checked="${asignados != null and asignados.contains(permiso.idPermiso)}"/>
+                            <label class="form-check-label d-flex flex-column lh-sm" th:for="${prefijo} + '-' + ${permiso.idPermiso}">
+                                <span class="small fw-medium" th:text="${permiso.descripcion}">Permiso</span>
+                                <code class="small text-secondary" th:text="${permiso.codigoPermiso}">modulo.accion</code>
+                            </label>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <p class="text-secondary text-center small py-4 mb-0 d-none" data-sin-resultados>Ningún permiso coincide con el filtro.</p>
+</th:block>
+
+</body>
+</html>

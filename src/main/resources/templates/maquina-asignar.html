@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes"/>
+    <title>FIMACOR | Asignar máquinas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous"/>
+    <link rel="stylesheet" th:href="@{/Estyle.css/fimacor-theme.css}"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+" crossorigin="anonymous"/>
+    <link rel="stylesheet" th:href="@{/Estyle.css/fimacor-tablas-movil.css}"/>
+</head>
+<body class="Maquinasregistradas-form bg-body-tertiary">
+    <div class="row g-0 min-vh-100">
+    <th:block th:replace="~{fragments/nav :: sidebar}"></th:block>
+    <div class="col-12 col-lg-9 col-xxl-10 d-flex flex-column">
+        <th:block th:replace="~{fragments/nav :: topbar('Asignar máquinas')}"></th:block>
+        <main class="flex-grow-1 px-3 px-md-4 px-xxl-5 py-4">
+    <div class="maquinasregistradas-container">
+        <div class="maquinasregistradas-card">
+            <details class="asignar-form-collapsible mb-4" th:open="${param.error != null}">
+                <summary class="asignar-form-summary position-relative d-flex flex-column bg-success text-white rounded-3 shadow-sm ps-4 pe-5 py-3 mx-auto col-12 col-md-8 col-lg-5">
+                    <span class="fw-bold fs-6">Asignar nueva máquina</span>
+                    <small class="opacity-75 fw-semibold">Máquina y cuentadante responsable</small>
+                <span class="position-absolute top-50 end-0 translate-middle-y me-3 d-inline-flex align-items-center justify-content-center rounded-circle bg-white bg-opacity-25 fw-bold px-2" aria-hidden="true">+</span></summary>
+                <div class="asignar-form-body bg-white border rounded-4 shadow-sm p-3 p-md-4 mt-3">
+                    <div class="headermaquinasregistradas d-flex justify-content-between align-items-center gap-3 mb-3">
+                        <div>
+                            <h2 class="h3 fw-bold mb-1">Asignar máquinas</h2>
+                            <p class="form-subtitle small text-secondary mb-0">Asigna máquinas únicamente a usuarios con rol Cuentadante.</p>
+                        </div>
+                    </div>
+
+                    <div class="alertamanuales-exito rolespermisos-alerta alert alert-success py-2 alert-info" th:if="${param.ok != null}">Asignación actualizada correctamente. Al cuentadante le llegó su notificación.</div>
+                    <div class="alertamanuales-error rolespermisos-alerta alert alert-danger py-2 alert-info" th:if="${param.error != null}">No se pudo completar la asignación.</div>
+
+                    <form th:action="@{/maquinas/asignar}" method="post" class="rolespermisos-modal-form border-top mt-3 pt-3">
+                        <div class="rolespermisos-campos-permiso row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3 small">
+                            <div>
+                                <label class="form-label fw-semibold small text-success mb-1">Máquina</label>
+                                <select class="form-select" name="idMaquina" required data-buscable data-buscable-texto="Buscar máquina por código o nombre">
+                                    <option value="">Seleccione una máquina</option>
+                                    <option th:each="m : ${maquinas}" th:value="${m.idMaquinas}"
+                                            th:text="(${m.codigoSena != null and !m.codigoSena.isBlank()} ? ${m.codigoSena} : 'Sin código') + ' - ' + ${m.descripcion}"></option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label fw-semibold small text-success mb-1">Cuentadante</label>
+                                <select class="form-select" name="idUsuario" required data-buscable data-buscable-texto="Buscar cuentadante por nombre o documento">
+                                    <option value="">Seleccione un cuentadante</option>
+                                    <option th:each="u : ${cuentadantes}" th:value="${u.idUsuario}"
+                                            th:text="${u.nombre} + ' ' + ${u.apellido} + ' - ' + ${u.documentoIdentidad} + ' | ' + (${totalPorUsuario.get(u.idUsuario)} ?: 0) + ' máquina(s) asignada(s)'"></option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-agregar rolespermisos-submit btn btn-success fw-bold mt-3">Asignar máquina</button>
+                    </form>
+                </div>
+            </details>
+
+            <div class="mantenimiento-listado-header d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3">
+                <h3 class="h5 fw-semibold mb-1">Asignaciones actuales</h3>
+                <span class="badge rounded-pill bg-success-subtle text-success-emphasis fs-6" th:text="${asignaciones.size()} + ' máquina(s) asignada(s)'">0</span>
+            </div>
+
+            <div class="tabla-contenedormaquinasregistradas table-responsive bg-white border rounded-4 shadow-sm">
+                <table class="tablemaquinasregistradas table table-hover align-middle text-center mb-0">
+                    <thead>
+                        <tr>
+                            <th class="bg-body-tertiary text-secondary text-uppercase small fw-semibold py-3">Código</th>
+                            <th class="bg-body-tertiary text-secondary text-uppercase small fw-semibold py-3">Máquina</th>
+                            <th class="bg-body-tertiary text-secondary text-uppercase small fw-semibold py-3">Cuentadante</th>
+                            <th class="bg-body-tertiary text-secondary text-uppercase small fw-semibold py-3">Total asignadas</th>
+                            <th class="bg-body-tertiary text-secondary text-uppercase small fw-semibold py-3">Ubicación</th>
+                            <th class="bg-body-tertiary text-secondary text-uppercase small fw-semibold py-3">Estado</th>
+                            <th class="bg-body-tertiary text-secondary text-uppercase small fw-semibold py-3">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:if="${asignaciones.isEmpty()}"><td colspan="7" class="tabla-vacia text-secondary text-center py-3">No hay máquinas asignadas.</td></tr>
+                        <tr th:each="item : ${asignaciones}">
+                            <td th:text="${item.maquina.codigoSena != null and !item.maquina.codigoSena.isBlank()} ? ${item.maquina.codigoSena} : 'Sin código'">codigo</td>
+                            <td th:text="${item.maquina.descripcion}">maquina</td>
+                            <td th:text="${item.usuario.nombre} + ' ' + ${item.usuario.apellido}">cuentadante</td>
+                            <td><strong th:text="${totalPorUsuario.get(item.usuario.idUsuario)} ?: 0">0</strong> máquina(s)</td>
+                            <td th:text="(${item.maquina.sede != null ? item.maquina.sede.nombreSede : 'Sin sede'}) + ' / ' + (${item.maquina.ambiente != null ? item.maquina.ambiente.descripcionAmbiente : 'Sin ambiente'}) + ' / ' + (${item.maquina.area != null and !item.maquina.area.isBlank()} ? ${item.maquina.area} : 'Sin área')">ubicacion</td>
+                            <td th:text="${item.maquina.estado != null ? item.maquina.estado.nombreTipo : 'Sin estado'}">estado</td>
+                            <td>
+                                <form th:action="@{/maquinas/asignar/{id}/eliminar(id=${item.idMaquinaCuentadante})}" method="post" class="form-accion-inline d-inline" onsubmit="return confirm('¿Quitar esta asignación?');">
+                                    <button type="submit" class="btnmaquinasregistradas btn-eliminarmaquinasregistradas btn btn-sm fw-bold btn-danger">Quitar</button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+        </main>
+        <footer class="border-top bg-white small text-secondary text-center py-3 d-print-none">&copy; 2026 FIMACOR &middot; Sistema de Control de Máquinas Textiles &middot; CMTC &ndash; SENA</footer>
+    </div>
+</div>
+<th:block th:replace="~{fragments/nav :: scripts}"></th:block>
+    <script th:src="@{/Script.js/fimacor-tablas-movil.js}"></script>
+<script th:src="@{/Script.js/fimacor-buscar-select.js}"></script>
+</body>
+</html>

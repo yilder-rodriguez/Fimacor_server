@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"/>
+  <script th:src="@{/Script.js/fimacor-zoom.js}"></script>
+  <title>Reportar novedad | FIMACOR</title>
+  <th:block th:replace="~{fragments/qr-material :: recursos}"></th:block>
+</head>
+<body class="md-body">
+  <header th:replace="~{fragments/qr-material :: barra('Reporte desde QR · SENA')}"></header>
+
+  <main class="c md-page">
+
+    <section class="top md-hero" aria-labelledby="tituloReporte">
+      <span class="md-icon md-hero__marca" aria-hidden="true">build</span>
+      <span class="md-label-small md-hero__overline">Novedad</span>
+      <h1 class="md-display-small md-hero__title" id="tituloReporte">Reportar novedad</h1>
+      <div class="md-hero__meta">
+        <span class="md-chip md-chip--code md-mono" th:text="${maquina.codigoSena}">SENA-0000</span>
+        <span class="md-chip md-chip--code" th:text="${maquina.descripcion}">Máquina</span>
+      </div>
+    </section>
+
+    <section class="datos md-card" aria-label="Datos tomados del QR">
+      <div class="md-card__header">
+        <span class="md-icon md-icon--sm md-muted" aria-hidden="true">shield_lock</span>
+        <h2 class="md-label-large md-muted">Datos bloqueados: vienen del QR escaneado</h2>
+      </div>
+      <div class="md-card__body">
+        <div class="md-data-grid md-card">
+          <div class="dato"><span class="md-label-medium md-muted">Fecha del reporte</span><strong th:text="${#temporals.format(#temporals.createNow(), 'dd/MM/yyyy')}">Fecha</strong></div>
+          <div class="dato"><span class="md-label-medium md-muted">Sede</span><strong th:text="${maquina.sede != null ? maquina.sede.nombreSede : 'Sin sede registrada'}">Sede</strong></div>
+          <div class="dato"><span class="md-label-medium md-muted">Área</span><strong th:text="${maquina.area != null and !maquina.area.isBlank() ? maquina.area : 'Sin área'}">Área</strong></div>
+          <div class="dato"><span class="md-label-medium md-muted">Ambiente</span><strong th:text="${maquina.ambiente != null ? maquina.ambiente.descripcionAmbiente : 'Sin ambiente registrado'}">Ambiente</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="err md-banner md-banner--error" role="alert" th:if="${error}">
+      <span class="md-icon md-icon--fill" aria-hidden="true">error</span><p th:text="${error}">Error</p>
+    </div>
+
+    <div class="pendientes md-banner md-banner--warning" th:if="${exito == null and bloqueada == null and pendientes != null and !pendientes.isEmpty()}">
+      <span class="md-icon md-icon--fill" aria-hidden="true">warning</span>
+      <div>
+        <p class="md-title-medium">Antes de reportar, revisa</p>
+        <p>Esta máquina ya tiene novedades o mantenimientos en curso:</p>
+        <ul><li th:each="p : ${pendientes}" th:text="${p}">Pendiente</li></ul>
+        <label class="md-checkbox">
+          <input type="checkbox" id="confirmarOtraFalla" name="confirmarOtraFalla" value="true" form="formReporteQr" required/>
+          <span class="md-label-large">Mi falla es distinta a las ya reportadas</span>
+        </label>
+      </div>
+    </div>
+
+    <form id="formReporteQr" class="md-card md-card--outlined" th:if="${exito == null and bloqueada == null}" method="post"
+          th:action="@{/ReporteNovedadQrServlet}" data-md-enviando="Enviando reporte...">
+      <div class="md-card__body md-stack" data-md-stagger>
+        <input type="hidden" name="id" th:value="${maquina.idMaquinas}"/>
+
+        <div>
+          <label class="md-field md-field--upper">
+            <input class="md-field__control" id="codigo_instructor" name="codigo_instructor" maxlength="8" pattern="[A-Za-z0-9]{3,8}" required
+                   th:value="${codigoSugerido}" placeholder="DANI4821" autocomplete="off" autocapitalize="characters" spellcheck="false" data-md-mayusculas/>
+            <span class="md-icon md-field__icon" aria-hidden="true">badge</span>
+            <span class="md-field__label">Código de Instructor</span>
+          </label>
+          <div class="md-field__support">
+            <span class="ayuda" th:text="${codigoSugerido != null and !codigoSugerido.isEmpty()} ? 'Sesión iniciada: tu código ya está escrito.' : 'Se valida que sea un Instructor activo.'">Se valida que sea un Instructor activo.</span>
+            <span>3 a 8 caracteres</span>
+          </div>
+        </div>
+
+        <fieldset class="md-filter-group">
+          <legend class="md-label-large">Tipo de falla</legend>
+          <div class="md-filter-group__items">
+            <label class="md-filter-chip" th:each="t, it : ${T(java.util.List).of('Mecánica', 'Eléctrica', 'Electrónica', 'Otro')}">
+              <input type="radio" name="tipo_falla" th:value="${t}" th:checked="${t == tipoFallaIngresado}" required/>
+              <span>
+                <span class="md-icon md-icon--sm md-check" aria-hidden="true">check</span>
+                <span class="md-icon md-icon--sm md-chip-icono" aria-hidden="true"
+                      th:text="${it.index == 0} ? 'build' : (${it.index == 1} ? 'bolt' : (${it.index == 2} ? 'memory' : 'more_horiz'))">build</span>
+                <span th:text="${t}">Tipo</span>
+              </span>
+            </label>
+          </div>
+        </fieldset>
+
+        <div>
+          <label class="md-field">
+            <textarea class="md-field__control" id="descripcion" name="descripcion" rows="5" maxlength="500" required
+                      placeholder="Ej.: no enciende, hace ruido o no realiza la puntada." data-md-counter="contadorDescripcion"
+                      th:text="${descripcionIngresada}"></textarea>
+            <span class="md-icon md-field__icon" aria-hidden="true">edit_note</span>
+            <span class="md-field__label">Descripción detallada</span>
+          </label>
+          <div class="md-field__support">
+            <span>Cuéntale a Logística qué pasa con la máquina.</span>
+            <span id="contadorDescripcion">0 / 500</span>
+          </div>
+        </div>
+
+        <button type="submit" class="md-btn md-btn--filled md-btn--xl md-btn--block">
+          <span class="md-icon md-btn__icon" aria-hidden="true">send</span>
+          <svg class="md-progress-circular" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20"/></svg>
+          <span class="md-btn__label">Enviar reporte a Logística</span>
+        </button>
+      </div>
+    </form>
+
+    <section class="resultado ok md-card md-card--outlined" th:if="${exito != null}" aria-live="polite">
+      <div class="md-card__body md-stack md-stack--center" data-md-stagger>
+        <svg class="md-exito" viewBox="0 0 88 88" aria-hidden="true"><circle cx="44" cy="44" r="40"/><path d="M27 45 l12 12 l23 -25"/></svg>
+        <div>
+          <h2 class="md-headline-small">Instructor verificado</h2>
+          <p class="md-body-large" th:text="${exito}">Éxito</p>
+        </div>
+        <p class="md-body-medium md-muted">La novedad fue enviada a Logística para asignar un técnico.</p>
+      </div>
+    </section>
+
+    <a class="md-link" th:if="${bloqueada == null}" th:href="@{/MaquinaQrServlet(id=${maquina.idMaquinas})}">
+      <span class="md-icon md-icon--sm" aria-hidden="true">arrow_back</span>Volver a la información de la máquina
+    </a>
+    <footer th:replace="~{fragments/qr-material :: pie}"></footer>
+  </main>
+
+  <script th:replace="~{fragments/qr-material :: scripts}"></script>
+</body>
+</html>

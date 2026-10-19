@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <title>FIMACOR | Iniciar sesión</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" th:href="@{/Estyle.css/fimacor-theme.css}">
+  <script th:src="@{/Script.js/Fimacor_effects.js}" defer></script>
+  <script th:src="@{/Script.js/Login.js}" defer></script>
+  <script th:src="@{/Script.js/fimacor-huella.js}" defer></script>
+  <style>
+    /* Login responsivo. Sin scripts de escala: todo se mide en rem/clamp y las cuadriculas se reorganizan solas,
+       asi que con zoom del navegador o en pantallas pequenas los bloques pasan uno debajo del otro (nada se solapa). */
+    .login-page { display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; }
+    .login-header { flex: 0 0 auto; height: 3.75rem; }
+    .login-shell { flex: 1 1 auto; display: grid; grid-template-columns: minmax(0, 1fr); }
+
+    /* Tarjeta de acceso (primero en pantallas angostas: es lo importante) */
+    .login-panel { display: flex; align-items: center; justify-content: center; padding: clamp(1rem, 4vw, 2rem); }
+    .login-card { width: 100%; max-width: 26rem; padding: clamp(1.1rem, 3.2vh, 2rem) clamp(1.25rem, 4vw, 2rem); }
+    .login-logo { width: clamp(2.75rem, 7vh, 4rem); height: clamp(2.75rem, 7vh, 4rem); object-fit: contain; }
+
+    /* Presentacion */
+    .login-aside { position: relative; overflow: hidden; color: #fff; container-type: inline-size; }
+    .login-aside-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .25; }
+    .login-aside-contenido { position: relative; display: flex; flex-direction: column; justify-content: center;
+      gap: clamp(.6rem, 1.7vh, 1.25rem); padding: clamp(1rem, 3.2vh, 2.75rem) clamp(1.5rem, 4.5vw, 3.5rem); max-width: 64rem; min-height: 100%; }
+    .login-aside h1 { font-size: clamp(1.75rem, 1.1rem + 2.1vw, 2.75rem); line-height: 1.12; font-weight: 800; margin: 0; }
+    .login-aside-texto { font-size: clamp(.95rem, .9rem + .2vw, 1.05rem); max-width: 44rem; margin: 0; color: rgba(255, 255, 255, .78); }
+    .login-fila { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem 1.5rem; }
+
+    /* Cuadriculas que se reorganizan solas segun el espacio disponible */
+    .login-features, .login-team { display: grid; list-style: none; margin: 0; padding: 0; }
+    .login-features { gap: .6rem; grid-template-columns: 1fr; }
+    .login-feature { padding: .55rem .9rem; border-radius: .75rem; font-size: .92rem; font-weight: 600; line-height: 1.35;
+      border: 1px solid rgba(76, 175, 80, .3); background: rgba(46, 125, 50, .14); }
+    .login-team { gap: .6rem 1.25rem; grid-template-columns: 1fr; }
+    .login-miembro { display: flex; align-items: flex-start; gap: .6rem; min-width: 0; }
+    .login-avatar { flex: 0 0 2.5rem; width: 2.5rem; height: 2.5rem; display: grid; place-items: center; border-radius: 50%;
+      background: #2e7d32; font-size: .8rem; font-weight: 700; }
+    .login-miembro-texto { display: flex; flex-direction: column; min-width: 0; line-height: 1.25; overflow-wrap: anywhere; }
+    .login-miembro-texto > span { font-size: .85rem; }
+    .login-miembro-texto small { color: rgba(255, 255, 255, .55); font-size: .72rem; }
+
+    /* Columnas segun el ancho real de la presentacion: siempre pares completos (1, 2 o 4), nunca una fila a medias */
+    @container (min-width: 30rem) {
+      .login-features { grid-template-columns: repeat(2, 1fr); }
+      .login-team { grid-template-columns: repeat(2, 1fr); }
+    }
+    @container (min-width: 46rem) {
+      .login-team { grid-template-columns: repeat(4, 1fr); }
+    }
+    @container (min-width: 84rem) {
+      .login-features { grid-template-columns: repeat(4, 1fr); }
+    }
+
+    /* Pantallas bajas (laptops): se aprieta el espacio vertical, pero todo sigue visible */
+    @media (max-height: 760px) {
+      .login-avatar { flex-basis: 2rem; width: 2rem; height: 2rem; font-size: .7rem; }
+      .login-miembro-texto > span { font-size: .8rem; }
+      .login-miembro-texto small { font-size: .68rem; }
+      .login-card .mb-3 { margin-bottom: .6rem !important; }
+      .login-card .mb-2 { margin-bottom: .4rem !important; }
+      .login-card .mt-3 { margin-top: .6rem !important; }
+      .login-card h2 { font-size: 1.2rem; }
+      .login-aside h1 { font-size: clamp(1.6rem, 1rem + 1.8vw, 2.4rem); }
+      .login-aside-contenido { gap: .55rem; padding-top: .9rem; padding-bottom: .9rem; }
+      .login-feature { padding: .45rem .8rem; }
+      .login-team { gap: .45rem 1.25rem; }
+    }
+
+    /* Pantallas anchas: presentacion a la izquierda y tarjeta fija a la derecha */
+    @media (min-width: 992px) {
+      .login-shell { grid-template-columns: minmax(0, 1fr) minmax(23rem, 30rem); }
+      .login-aside { grid-column: 1; grid-row: 1; min-height: calc(100vh - 3.75rem); min-height: calc(100dvh - 3.75rem); }
+      .login-panel { grid-column: 2; grid-row: 1; position: sticky; top: 0; align-self: start;
+        min-height: calc(100vh - 3.75rem); min-height: calc(100dvh - 3.75rem); }
+    }
+  </style>
+</head>
+<body class="login-page bg-dark">
+
+  <header class="login-header d-flex align-items-center gap-3 px-3 px-lg-4 bg-dark border-bottom border-light border-opacity-10">
+    <img alt="Logo SENA" th:src="@{/Img/Sena.png}" width="36" height="36" class="object-fit-contain"/>
+    <span class="text-white fw-bold fs-5">FIMACOR</span>
+  </header>
+
+  <main class="login-shell">
+
+    <section class="login-panel" aria-label="Iniciar sesión">
+      <div class="login-card bg-white rounded-4 shadow-lg">
+
+        <div class="text-center mb-3">
+          <img alt="Logo SENA" th:src="@{/Img/Sena.png}" class="login-logo"/>
+          <h2 class="h4 fw-bolder text-dark mt-2 mb-1">Bienvenido a FIMACOR</h2>
+          <p class="small text-secondary mb-0">Ingresa tus credenciales para continuar</p>
+        </div>
+
+        <div class="login-pill d-flex justify-content-center align-items-center text-center rounded-pill bg-success-subtle text-success-emphasis fw-bolder small px-3 py-1 mb-3">
+          Centro de Manufactura Textil y del Cuero · SENA
+        </div>
+
+        <div id="mensajes" class="mb-2">
+          <div class="error-msg alert alert-danger small text-center py-2 px-2 mb-2" th:if="${param.error}">Correo o contraseña incorrectos.</div>
+          <div class="success-msg alert alert-success small text-center py-2 px-2 mb-2" th:if="${param.salida}">Sesión cerrada correctamente.</div>
+          <div class="error-msg alert alert-danger small text-center py-2 px-2 mb-2" th:if="${param.expirado}">Tu sesión se cerró porque esta cuenta inició sesión en otro dispositivo o navegador.</div>
+          <div class="error-msg alert alert-warning small text-center py-2 px-2 mb-2" th:if="${param.caducada}">La página llevaba mucho tiempo abierta y se actualizó. Escribe tus datos de nuevo para entrar.</div>
+        </div>
+
+        <form id="formLogin" th:action="@{/login}" method="post">
+
+          <div class="mb-3">
+            <label for="correo" class="form-label small fw-bold text-secondary">Correo Electrónico</label>
+            <input type="email" id="correo" name="correo" class="form-control" placeholder="ejemplo@correo.com" autocomplete="username" required>
+          </div>
+
+          <div class="mb-3">
+            <label for="contrasena" class="form-label small fw-bold text-secondary">Contraseña</label>
+            <div class="pass-wrapper position-relative">
+              <input type="password" id="contrasena" name="contrasena" class="form-control pe-5" placeholder="Ingrese su contraseña" autocomplete="current-password" required>
+              <span class="toggle-pass position-absolute top-50 end-0 translate-middle-y me-3 d-flex text-success" id="toggleBtn" role="button" onclick="toggleVer('contrasena', this)"></span>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-success fw-bolder w-100 py-2 shadow-sm" id="btnLogin">Iniciar sesión</button>
+
+          <div class="mt-3 text-center small text-secondary d-flex flex-column gap-1">
+            <div>¿No tienes cuenta? <a th:href="@{/registro}" class="link-success fw-bolder text-decoration-none">Regístrate aquí</a></div>
+            <div><a th:href="@{/recuperar}" class="link-success fw-bolder text-decoration-none">¿Olvidaste tu contraseña?</a></div>
+          </div>
+
+        </form>
+
+        <div class="login-pie mt-3 pt-2 border-top text-center text-secondary small">
+          &copy; 2026 FIMACOR - CodeFusion YD | ADSO &middot; Ficha 3171084<br>
+          Gerente de Proyecto: María del Pilar Bonilla Moreno
+        </div>
+
+      </div>
+    </section>
+
+    <section class="login-aside bg-success-subtle" data-bs-theme="dark" aria-label="Presentación FIMACOR">
+      <img th:src="@{/Img/login-maquinaria-textil.png}" alt="" class="login-aside-bg"/>
+      <div class="login-aside-contenido">
+
+        <div class="login-fila">
+          <div class="badge rounded-pill border border-success text-success-emphasis bg-success bg-opacity-25 px-3 py-2">CMTC - SENA · Ficha 3171084</div>
+          <div class="d-flex align-items-center gap-2 small fw-bold"><span class="d-inline-block p-1 rounded-circle bg-success" aria-hidden="true"></span> Plataforma operativa</div>
+        </div>
+
+        <div>
+          <p class="small fw-bolder text-uppercase text-success-emphasis mb-2">Control de activos textiles</p>
+          <h1>Sistema de Gestión de <span class="d-block text-success-emphasis">Maquinaria Textil</span></h1>
+        </div>
+
+        <p class="login-aside-texto">FIMACOR centraliza el control de mantenimiento preventivo, correctivo y predictivo
+        de la maquinaria textil del Centro de Manufactura Textil y del Cuero del SENA,
+        mejorando la trazabilidad y eliminando la gestión manual.</p>
+
+        <ul class="login-features">
+          <li class="login-feature">Registro de mantenimientos preventivo, correctivo y predictivo</li>
+          <li class="login-feature">Gestión de fichas técnicas y manuales por máquina</li>
+          <li class="login-feature">Alertas automáticas de mantenimientos próximos y fallas</li>
+          <li class="login-feature">Control de acceso por roles y permisos configurables</li>
+        </ul>
+
+        <div class="pt-3 border-top border-light border-opacity-10">
+          <div class="small fw-bolder text-uppercase text-success-emphasis mb-3">Desarrollado por CodeFusion YD</div>
+          <ul class="login-team">
+            <li class="login-miembro"><span class="login-avatar">MB</span><span class="login-miembro-texto"><span class="fw-semibold">María del Pilar Bonilla Moreno</span><small>Gerente de Proyecto de Software</small></span></li>
+            <li class="login-miembro"><span class="login-avatar">OC</span><span class="login-miembro-texto"><span class="fw-semibold">Oscar Javier Contreras Jiménez</span><small>Experto Temático</small></span></li>
+            <li class="login-miembro"><span class="login-avatar">YR</span><span class="login-miembro-texto"><span class="fw-semibold">Yilder Stiven Rodríguez Lozada</span><small>Aprendiz Desarrollador Principal</small></span></li>
+            <li class="login-miembro"><span class="login-avatar">DO</span><span class="login-miembro-texto"><span class="fw-semibold">Daniel Felipe Ospino Acosta</span><small>Aprendiz Desarrollador Principal</small></span></li>
+            <li class="login-miembro"><span class="login-avatar">KT</span><span class="login-miembro-texto"><span class="fw-semibold">Kevin Andrés Turizo Tamara</span><small>Aprendiz Desarrollador de Apoyo</small></span></li>
+            <li class="login-miembro"><span class="login-avatar">JC</span><span class="login-miembro-texto"><span class="fw-semibold">Jimmy Emiliano Corzo Gómez</span><small>Aprendiz Desarrollador de Apoyo</small></span></li>
+            <li class="login-miembro"><span class="login-avatar">VG</span><span class="login-miembro-texto"><span class="fw-semibold">Vanessa Carolina González Reyes</span><small>Aprendiz Documentadora</small></span></li>
+            <li class="login-miembro"><span class="login-avatar">JD</span><span class="login-miembro-texto"><span class="fw-semibold">Juan Manuel Dìaz Barragan</span><small>Dinamizador Sennova</small></span></li>
+          </ul>
+        </div>
+
+        <div class="d-flex align-items-center gap-2 small fw-bold">
+          <span class="d-inline-block p-1 rounded-circle bg-success" aria-hidden="true"></span>
+          Acceso seguro para la gestión operativa
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <div class="modal-login modal d-block d-none bg-dark bg-opacity-75" id="modalLogin">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 rounded-4 shadow-lg p-4 text-center">
+        <div class="loader spinner-border text-success mx-auto mb-3" role="status"></div>
+        <h3 id="modalTitulo" class="h5 fw-bold">Iniciando sesión</h3>
+        <p id="modalTexto" class="text-secondary mb-0">Redirigiendo al menú principal...</p>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

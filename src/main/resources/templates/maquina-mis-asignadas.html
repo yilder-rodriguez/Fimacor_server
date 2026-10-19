@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes"/>
+    <title>FIMACOR | Mis máquinas asignadas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous"/>
+    <link rel="stylesheet" th:href="@{/Estyle.css/fimacor-theme.css}"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+" crossorigin="anonymous"/>
+    <link rel="stylesheet" th:href="@{/Estyle.css/fimacor-tablas-movil.css}"/>
+</head>
+<body class="Maquinasregistradas-form bg-body-tertiary">
+    <div class="row g-0 min-vh-100">
+    <th:block th:replace="~{fragments/nav :: sidebar}"></th:block>
+    <div class="col-12 col-lg-9 col-xxl-10 d-flex flex-column">
+        <th:block th:replace="~{fragments/nav :: topbar('Mis máquinas asignadas')}"></th:block>
+        <main class="flex-grow-1 px-3 px-md-4 px-xxl-5 py-4">
+    <div class="maquinasregistradas-container">
+        <div class="maquinasregistradas-card">
+            <div class="headermaquinasregistradas d-flex justify-content-between align-items-center gap-3 mb-3">
+                <div>
+                    <h2 class="h3 fw-bold mb-1">Mis máquinas asignadas</h2>
+                    <p class="form-subtitle small text-secondary mb-0">Tienes <strong th:text="${misAsignaciones.size()}">0</strong> máquina(s) bajo tu responsabilidad.</p>
+                </div>
+            </div>
+
+            <div class="tabla-contenedormaquinasregistradas table-responsive bg-white border rounded-4 shadow-sm">
+                <table class="tablemaquinasregistradas table table-hover align-middle text-center mb-0">
+                    <thead>
+                        <tr>
+                            <th class="bg-body-tertiary text-secondary text-uppercase small fw-semibold py-3">Código</th>
+                            <th class="bg-body-tertiary text-secondary text-uppercase small fw-semibold py-3">Máquina</th>
+                            <th class="bg-body-tertiary text-secondary text-uppercase small fw-semibold py-3">Tipo</th>
+                            <th class="bg-body-tertiary text-secondary text-uppercase small fw-semibold py-3">Marca / Modelo</th>
+                            <th class="bg-body-tertiary text-secondary text-uppercase small fw-semibold py-3">Ubicación</th>
+                            <th class="bg-body-tertiary text-secondary text-uppercase small fw-semibold py-3">Estado</th>
+                            <th class="bg-body-tertiary text-secondary text-uppercase small fw-semibold py-3">Asignada</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:if="${misAsignaciones.isEmpty()}"><td colspan="7" class="tabla-vacia text-secondary text-center py-3">Aún no tienes máquinas asignadas.</td></tr>
+                        <tr th:each="item : ${misAsignaciones}" class="fila-maquina"
+                            th:attr="data-modal='modalMisMaquinas' + ${item.maquina.idMaquinas},data-machine-id=${item.maquina.idMaquinas}"
+                            title="Ver información y manuales">
+                            <td data-label="Código" th:text="${item.maquina.codigoSena != null and !item.maquina.codigoSena.isBlank()} ? ${item.maquina.codigoSena} : 'Sin código'">codigo</td>
+                            <td data-label="Máquina" th:text="${item.maquina.descripcion}">maquina</td>
+                            <td data-label="Tipo" th:text="${item.maquina.tipoMaquina != null ? item.maquina.tipoMaquina.descripcionMaquina : 'Sin tipo'}">tipo</td>
+                            <td data-label="Marca / Modelo" th:text="(${item.maquina.marca != null ? item.maquina.marca.descripcionMarca : 'Sin marca'}) + ' / ' + (${item.maquina.modelo != null ? item.maquina.modelo.descripcionModelo : 'Sin modelo'})">marca/modelo</td>
+                            <td data-label="Ubicación"><div class="celda-valor">
+                                <strong>Sede:</strong> <span th:text="${item.maquina.sede != null ? item.maquina.sede.nombreSede : 'Sin sede'}"></span><br/>
+                                <strong>Ambiente:</strong> <span th:text="${item.maquina.ambiente != null ? item.maquina.ambiente.descripcionAmbiente : 'Sin ambiente'}"></span><br/>
+                                <strong>Área:</strong> <span th:text="${item.maquina.area != null and !item.maquina.area.isBlank()} ? ${item.maquina.area} : 'Sin área'"></span>
+                            </div></td>
+                            <td data-label="Estado" th:text="${item.maquina.estado != null ? item.maquina.estado.nombreTipo : 'Sin estado'}">estado</td>
+                            <td data-label="Asignada" th:text="${item.fechaAsignacion}">fecha</td>
+                        </tr>
+                        <div th:each="item : ${misAsignaciones}" class="modalmaquina modal d-block d-none bg-dark bg-opacity-75" th:id="'modalMisMaquinas' + ${item.maquina.idMaquinas}">
+                            <div class="modalmaquina-contenido modal-dialog modal-xl modal-content border-0 rounded-4 shadow-lg p-3 p-md-4">
+                                <button type="button" class="modalmaquina-cerrar btn-close position-absolute top-0 end-0 m-3" aria-label="Cerrar"></button>
+                                <div class="modalmaquina-header border-bottom pb-2 mb-3 pe-5">
+                                    <h3 class="h5 fw-semibold mb-1">Información de la máquina</h3>
+                                    <p th:text="'Código SENA: ' + (${item.maquina.codigoSena != null and !item.maquina.codigoSena.isBlank()} ? ${item.maquina.codigoSena} : 'Sin código')"></p>
+                                </div>
+                                <div class="modalmaquina-grid row row-cols-1 row-cols-lg-2 g-3 small">
+                                    <div class="modalmaquina-bloque border rounded-3 p-3">
+                                        <h4 class="h6 fw-bold text-success border-bottom pb-2 mb-2">Datos principales</h4>
+                                        <p class="mb-1"><strong>Máquina:</strong> <span th:text="${item.maquina.descripcion}"></span></p>
+                                        <p class="mb-1"><strong>Tipo:</strong> <span th:text="${item.maquina.tipoMaquina != null ? item.maquina.tipoMaquina.descripcionMaquina : 'Sin tipo'}"></span></p>
+                                        <p class="mb-1"><strong>Marca:</strong> <span th:text="${item.maquina.marca != null ? item.maquina.marca.descripcionMarca : 'Sin marca'}"></span></p>
+                                        <p class="mb-1"><strong>Modelo:</strong> <span th:text="${item.maquina.modelo != null ? item.maquina.modelo.descripcionModelo : 'Sin modelo'}"></span></p>
+                                        <p class="mb-1"><strong>Estado:</strong> <span th:text="${item.maquina.estado != null ? item.maquina.estado.nombreTipo : 'Sin estado'}"></span></p>
+                                        <p class="mb-1"><strong>Fecha asignación:</strong> <span th:text="${item.fechaAsignacion}"></span></p>
+                                    </div>
+                                    <div class="modalmaquina-bloque border rounded-3 p-3">
+                                        <h4 class="h6 fw-bold text-success border-bottom pb-2 mb-2">Ubicación</h4>
+                                        <p class="mb-1"><strong>Sede:</strong> <span th:text="${item.maquina.sede != null ? item.maquina.sede.nombreSede : 'Sin sede'}"></span></p>
+                                        <p class="mb-1"><strong>Ambiente:</strong> <span th:text="${item.maquina.ambiente != null ? item.maquina.ambiente.descripcionAmbiente : 'Sin ambiente'}"></span></p>
+                                        <p class="mb-1"><strong>Área:</strong> <span th:text="${item.maquina.area != null and !item.maquina.area.isBlank()} ? ${item.maquina.area} : 'Sin área'"></span></p>
+                                    </div>
+                                    <div class="modalmaquina-bloque border rounded-3 p-3">
+                                        <h4 class="h6 fw-bold text-success border-bottom pb-2 mb-2">Manuales</h4>
+                                        <th:block th:with="manuales=${manualesPorMaquina.get(item.maquina.idMaquinas)}">
+                                            <p th:if="${manuales == null or manuales.isEmpty()}">No hay manuales registrados para esta máquina.</p>
+                                            <div th:each="manual : ${manuales}" class="modalmanual-card border rounded-3 p-2 mb-2">
+                                                <p class="mb-1"><strong>Nombre:</strong> <span th:text="${manual.nombreDelManual}"></span></p>
+                                                <p class="mb-1"><strong>Tipo:</strong> <span th:text="${manual.tipoManual != null ? manual.tipoManual.descripcionManual : ''}"></span></p>
+                                                <p class="mb-1"><strong>Descripción:</strong> <span th:text="${manual.descripcionManual}"></span></p>
+                                                <p class="mb-1"><strong>Fuente:</strong> <span th:text="${manual.esEnlace()} ? 'Link' : 'PDF'"></span></p>
+                                                <p class="mb-1"><strong>Fecha subida:</strong> <span th:text="${manual.fechaSubida}"></span></p>
+                                                <a th:if="${manual.esEnlace()}" class="modalmanual-link no-abrir-modal link-success fw-semibold" th:href="${manual.rutaManual}" target="_blank" rel="noopener noreferrer">Abrir link</a>
+                                                <a th:unless="${manual.esEnlace()}" class="modalmanual-link no-abrir-modal link-success fw-semibold" th:href="@{/manuales/{id}/archivo(id=${manual.idManuales})}" target="_blank" rel="noopener noreferrer">Abrir PDF</a>
+                                            </div>
+                                        </th:block>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+    <script th:src="@{/Script.js/Maquinas_registradas.js}"></script>
+        </main>
+        <footer class="border-top bg-white small text-secondary text-center py-3 d-print-none">&copy; 2026 FIMACOR &middot; Sistema de Control de Máquinas Textiles &middot; CMTC &ndash; SENA</footer>
+    </div>
+</div>
+<th:block th:replace="~{fragments/nav :: scripts}"></th:block>
+    <script th:src="@{/Script.js/fimacor-tablas-movil.js}"></script>
+</body>
+</html>
