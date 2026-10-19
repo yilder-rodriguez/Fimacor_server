@@ -14,6 +14,6 @@ ENV TZ=America/Bogota
 WORKDIR /opt/fimacor
 COPY --from=build /opt/fimacor/target/fimacor-spring.jar app.jar
 
-EXPOSE 8080
+EXPOSE 8081
 
 CMD ["java", "-jar", "app.jar"]
